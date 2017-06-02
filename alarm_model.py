@@ -14,7 +14,20 @@ alarm = BernoulliNode([burglary, earthquake],
 john = BernoulliNode([alarm], [None, 0.9, 0.05])
 mary = BernoulliNode([alarm], [None, 0.7, 0.01])
 
-# Add complete conditionals to each node
+# Add children nodes to nodes
+burglary.add_child(alarm)
+earthquake.add_child(alarm)
+alarm.add_children([john, mary])
 
 # Add nodes to probability network
 network = Network()
+network.add_nodes([burglary, earthquake, alarm, john, mary])
+
+# Simulate Russell and Norving's conclusion
+john.set_evidence(True)
+mary.set_evidence(True)
+
+# Run network
+network.burn()
+network.sample(200)
+print(network.sample_history)

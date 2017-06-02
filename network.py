@@ -12,14 +12,28 @@ class Network(object):
         self.run_samples = run_samples
 
     def add_node(self, node):
-
-        # Add node to list
         self.nodes.append(node)
 
-    def burn():
-        pass
+    def add_nodes(self, nodes):
+        self.nodes.extend(nodes)
+
+    def burn(self):
         ''' Burn self.burn_samples in network '''
 
-    def sample():
-        pass
+        self.burn_history = []
+        for i in range(self.burn_samples):
+            row = []
+            for node in self.nodes:
+                row.append(node.sample_conditional())
+            self.burn_history.append(row)
+
+    def sample(self, samples):
         ''' Run network for self.run_samples and return sample '''
+
+        self.sample_history = []
+        for i in range(samples):
+            for j in range(self.run_samples):
+                row = []
+                for node in self.nodes:
+                    row.append(node.sample_conditional())
+                self.sample_history.append(row)
