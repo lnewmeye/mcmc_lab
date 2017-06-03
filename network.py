@@ -39,7 +39,7 @@ class Network(object):
             for j in range(self.run_samples):
                 row = []
                 for node in self.nodes:
-                    print('sampling node:', node)
+                    #print('sampling node:', node)
                     row.append(node.sample_conditional())
                 self.sample_history.append(row)
             self.samples.append(self.sample_history[-1])

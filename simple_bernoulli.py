@@ -7,7 +7,7 @@ from network import Network
 from node import *
 
 # Set parameters for simulation
-N = 10000
+N = 1000
 
 # Create nodes in order of heiarchy
 A = BernoulliNode([], [0.5])
@@ -21,10 +21,11 @@ network = Network(1000, 100)
 network.add_nodes([A, B])
 
 # Simulate joint distribution
-#network.sample(N)
+network.burn()
+network.sample(N)
 
 # Print probabilities
-'''probability = network.estimate_probability([1, 1])
+probability = network.estimate_probability([1, 1])
 print('P(A=true, B=true) ~=', probability)
 probability = network.estimate_probability([1, 0])
 print('P(A=true, B=false) ~=', probability)
@@ -39,7 +40,7 @@ probability = network.estimate_probability([1, 1]) + \
         network.estimate_probability([0, 1])
 print('P(B=true) ~=', probability)
 
-# Simulate conditional distribution given A is True
+'''# Simulate conditional distribution given A is True
 A.set_fixed(True)
 network.sample(N)
 probability = network.estimate_probability([1, 1])

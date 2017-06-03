@@ -7,7 +7,7 @@ from network import Network
 from node import *
 
 # Set simulation parameters
-N = 5000
+N = 500
 
 # Create nodes in order of heiarchy
 burglary = BernoulliNode([], [0.001])
@@ -23,7 +23,7 @@ earthquake.add_child(alarm)
 alarm.add_children([john, mary])
 
 # Add nodes to probability network
-network = Network()
+network = Network(5000, 20)
 network.add_nodes([burglary, earthquake, alarm, john, mary])
 
 # Simulate Russell and Norving's conclusion
@@ -33,8 +33,12 @@ mary.set_fixed(True)
 # Run network
 network.burn()
 network.sample(N)
+#probability = network.estimate_probability([1, 1, 1, 1, 1]) + \
+              #network.estimate_probability([1, 1, 0, 1, 1]) + \
+              #network.estimate_probability([1, 0, 1, 1, 1]) + \
+              #network.estimate_probability([1, 0, 0, 1, 1])
 probability = network.estimate_probability([1, 1, 1, 1, 1]) + \
-              network.estimate_probability([1, 1, 0, 1, 1]) + \
               network.estimate_probability([1, 0, 1, 1, 1]) + \
-              network.estimate_probability([1, 0, 0, 1, 1])
+              network.estimate_probability([0, 1, 1, 1, 1]) + \
+              network.estimate_probability([0, 0, 1, 1, 1])
 print(probability)

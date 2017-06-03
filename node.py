@@ -120,26 +120,26 @@ class BernoulliNode(Node):
         # Iterate through children and make running product
         for child in self.children:
 
-            # Find probability of current state
+            # Save current state value
             value = self.value
+
+            # Spoof value to true and find probability
             self.value = True
             numerator *= child.get_current_probability()
-            self.value = value
-
-            # Get part 1 of denominator
-            denominator1 *= child.get_current_probability()
 
             # Fake by switching current value and find probability
-            self.set_value(not self.get_value())
+            self.value = False
             denominator *= child.get_current_probability()
-            self.set_value(not self.get_value())
+
+            # Return value to current state
+            self.value = value
 
         # Find probaility from bayes law
-        denominator += denominator1
+        denominator += numerator
         probability = numerator / denominator
 
-        print('numerator =', numerator)
-        print('denomiator =', denominator)
+        #print('numerator =', numerator)
+        #print('denomiator =', denominator)
         print(probability)
 
         # Save sample value in object and return
