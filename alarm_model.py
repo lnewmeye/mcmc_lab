@@ -6,6 +6,9 @@ import numpy as np
 from network import Network
 from node import *
 
+# Set simulation parameters
+N = 5000
+
 # Create nodes in order of heiarchy
 burglary = BernoulliNode([], [0.001])
 earthquake = BernoulliNode([], [0.002])
@@ -14,7 +17,7 @@ alarm = BernoulliNode([burglary, earthquake],
 john = BernoulliNode([alarm], [None, 0.9, 0.05])
 mary = BernoulliNode([alarm], [None, 0.7, 0.01])
 
-# Add children nodes to nodes
+# Add children to nodes
 burglary.add_child(alarm)
 earthquake.add_child(alarm)
 alarm.add_children([john, mary])
@@ -29,5 +32,9 @@ mary.set_evidence(True)
 
 # Run network
 network.burn()
-network.sample(200)
-print(network.sample_history)
+network.sample(N)
+probability = network.estimate_probability([1, 1, 1, 1, 1]) + \
+              network.estimate_probability([1, 1, 0, 1, 1]) + \
+              network.estimate_probability([1, 0, 1, 1, 1]) + \
+              network.estimate_probability([1, 0, 0, 1, 1])
+print(probability)

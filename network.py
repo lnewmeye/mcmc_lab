@@ -31,9 +31,22 @@ class Network(object):
         ''' Run network for self.run_samples and return sample '''
 
         self.sample_history = []
+        self.samples = []
         for i in range(samples):
             for j in range(self.run_samples):
                 row = []
                 for node in self.nodes:
                     row.append(node.sample_conditional())
                 self.sample_history.append(row)
+            self.samples.append(self.sample_history[-1])
+
+        return self.samples
+
+    def estimate_probability(self, sequence):
+
+        count = 0
+        for sample in self.samples:
+            if sample == sequence:
+                count +=1
+
+        return count / len(self.samples)

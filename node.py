@@ -15,10 +15,10 @@ from bernoullitree import *
 
 class Node(object):
 
-    def __init__(self, value=None, evidence=None):
+    def __init__(self, value=None, fixed=False):
 
         # Define object attributes
-        self.evidence = evidence #if evidence is set do not sample randomly
+        self.fixed = fixed
         self.children = []
 
         # Initialize value if no value passed
@@ -29,18 +29,18 @@ class Node(object):
             # Set value to value provided to init function
             self.value == value
 
-    def set_evidence(self, evidence):
-        self.evidence = evidence
+    def set_fixed(self, value):
+        self.value = value
+        self.fixed = True
 
-    def get_evidence(self, evidence):
-        return self.evidence
+    def set_unkown(self):
+        # TODO: add option to provide value?
+        self.fixed = False
 
     def set_value(self, value):
         self.value = value
 
     def get_value(self):
-        if self.evidence != None:
-            return self.evidence
         return self.value
 
     def add_child(self,  child):
@@ -58,7 +58,7 @@ class Node(object):
 class BernoulliNode(Node):
 
     # Initalization of object
-    def __init__(self, dependencies, probabilities, value=None, evidence=None):
+    def __init__(self, dependencies, probabilities, value=None, fixed=False):
         ''' Initialize object given a list of dependent nodes and a list of 
         probabilities for a tree structure from the dependencies '''
 
@@ -67,7 +67,7 @@ class BernoulliNode(Node):
         self.distribution = BernoulliTree(probabilities)
 
         # Call super node's init function
-        super(BernoulliNode, self).__init__(value, evidence)
+        super(BernoulliNode, self).__init__(value, fixed)
 
     def get_probability(self):
 
@@ -82,9 +82,9 @@ class BernoulliNode(Node):
 
     def sample_distribution(self):
 
-        # If evidence node set replace instead
-        if self.evidence != None:
-            return self.evidence
+        # If node set to fixed, return value and exit
+        if self.fixed == True:
+            return self.value
 
         # Get probability of distribution
         probability = self.get_probability()
@@ -95,9 +95,9 @@ class BernoulliNode(Node):
 
     def sample_conditional(self):
 
-        # If evidence node set replace instead
-        if self.evidence != None:
-            return self.evidence
+        # If node set to fixed, return value and exit
+        if self.fixed == True:
+            return self.value
 
         # Initalize numerator and denominator with current distribution
         numerator = self.get_probability()
@@ -131,9 +131,9 @@ class BernoulliNode(Node):
 
     def sample_set_conditional(self):
 
-        # If evidence node set replace instead
-        if self.evidence != None:
-            return self.evidence
+        # If node set to fixed, return value and exit
+        if self.fixed == True:
+            return self.value
 
         # Get value for each dependency and append to array
         dependency_values = []
