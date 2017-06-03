@@ -27,8 +27,8 @@ network = Network()
 network.add_nodes([burglary, earthquake, alarm, john, mary])
 
 # Simulate Russell and Norving's conclusion
-john.set_evidence(True)
-mary.set_evidence(True)
+john.set_fixed(True)
+mary.set_fixed(True)
 
 # Run network
 network.burn()

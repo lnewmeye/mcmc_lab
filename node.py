@@ -69,7 +69,7 @@ class BernoulliNode(Node):
         # Call super node's init function
         super(BernoulliNode, self).__init__(value, fixed)
 
-    def get_probability(self):
+    def get_true_probability(self):
 
         # Get value for each dependency and append to array
         parent_values = []
@@ -80,6 +80,19 @@ class BernoulliNode(Node):
         probability = self.distribution.get_probability(parent_values)
         return probability
 
+    def get_current_probability(self):
+
+        # Get value for each dependency and append to array
+        parent_values = []
+        for parent in self.parents:
+            parent_values.append(parent.get_value())
+
+        # Save sample in object and return
+        probability = self.distribution.get_probability(parent_values)
+        if self.value == True:
+            return probability
+        return 1 - probability
+
     def sample_distribution(self):
 
         # If node set to fixed, return value and exit
@@ -87,7 +100,7 @@ class BernoulliNode(Node):
             return self.value
 
         # Get probability of distribution
-        probability = self.get_probability()
+        probability = self.get_true_probability()
 
         # Save sample in object and return
         self.value = stats.bernoulli.rvs(probability)
@@ -100,23 +113,34 @@ class BernoulliNode(Node):
             return self.value
 
         # Initalize numerator and denominator with current distribution
-        numerator = self.get_probability()
+        numerator = self.get_true_probability()
+        denominator1 = numerator
         denominator = 1 - numerator
 
         # Iterate through children and make running product
         for child in self.children:
 
             # Find probability of current state
-            numerator *= child.get_probability()
+            value = self.value
+            self.value = True
+            numerator *= child.get_current_probability()
+            self.value = value
+
+            # Get part 1 of denominator
+            denominator1 *= child.get_current_probability()
 
             # Fake by switching current value and find probability
             self.set_value(not self.get_value())
-            denominator *= child.get_probability()
+            denominator *= child.get_current_probability()
             self.set_value(not self.get_value())
 
         # Find probaility from bayes law
-        denominator += numerator
+        denominator += denominator1
         probability = numerator / denominator
+
+        print('numerator =', numerator)
+        print('denomiator =', denominator)
+        print(probability)
 
         # Save sample value in object and return
         self.value = stats.bernoulli.rvs(probability)
@@ -129,7 +153,7 @@ class BernoulliNode(Node):
         self.dependencies = dependencies
         self.conditional = BernoulliTree(probabilities)
 
-    def sample_set_conditional(self):
+'''    def sample_set_conditional(self):
 
         # If node set to fixed, return value and exit
         if self.fixed == True:
@@ -143,4 +167,4 @@ class BernoulliNode(Node):
         # Save sample in object and return
         probability = self.conditional.get_probability(dependency_values)
         self.value = stats.bernoulli.rvs(probability)
-        return self.value
+        return self.value'''

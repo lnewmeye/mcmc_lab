@@ -17,8 +17,11 @@ class Network(object):
     def add_nodes(self, nodes):
         self.nodes.extend(nodes)
 
-    def burn(self):
+    def burn(self, burn_samples=500):
         ''' Burn self.burn_samples in network '''
+
+        # Set internal burn_samples
+        self.burn_samples = burn_samples
 
         self.burn_history = []
         for i in range(self.burn_samples):
@@ -36,6 +39,7 @@ class Network(object):
             for j in range(self.run_samples):
                 row = []
                 for node in self.nodes:
+                    print('sampling node:', node)
                     row.append(node.sample_conditional())
                 self.sample_history.append(row)
             self.samples.append(self.sample_history[-1])

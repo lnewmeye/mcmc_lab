@@ -7,7 +7,7 @@ from network import Network
 from node import *
 
 # Set parameters for simulation
-N = 1000
+N = 10000
 
 # Create nodes in order of heiarchy
 A = BernoulliNode([], [0.5])
@@ -17,11 +17,10 @@ B = BernoulliNode([A], [None, 0.2, 0.3])
 A.add_child(B)
 
 # Add nodes to network
-network = Network()
+network = Network(1000, 100)
 network.add_nodes([A, B])
 
 # Simulate joint distribution
-network.burn()
 #network.sample(N)
 
 # Print probabilities
@@ -60,6 +59,7 @@ probability = network.estimate_probability([1, 1])
 print('P(A=true|B=true) =', probability)'''
 
 B.set_fixed(False)
+network.burn()
 network.sample(N)
 probability = network.estimate_probability([1, 0])
 print('P(A=true|B=false) =', probability)
