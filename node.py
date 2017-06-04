@@ -33,7 +33,7 @@ class Node(object):
         self.value = value
         self.fixed = True
 
-    def set_unkown(self):
+    def set_unknown(self):
         # TODO: add option to provide value?
         self.fixed = False
 
@@ -114,25 +114,18 @@ class BernoulliNode(Node):
 
         # Initalize numerator and denominator with current distribution
         numerator = self.get_true_probability()
-        denominator1 = numerator
         denominator = 1 - numerator
 
         # Iterate through children and make running product
         for child in self.children:
 
-            # Save current state value
-            value = self.value
-
             # Spoof value to true and find probability
             self.value = True
             numerator *= child.get_current_probability()
 
-            # Fake by switching current value and find probability
+            # Spoof value to false and find probability
             self.value = False
             denominator *= child.get_current_probability()
-
-            # Return value to current state
-            self.value = value
 
         # Find probaility from bayes law
         denominator += numerator
@@ -140,7 +133,7 @@ class BernoulliNode(Node):
 
         #print('numerator =', numerator)
         #print('denomiator =', denominator)
-        print(probability)
+        #print(probability)
 
         # Save sample value in object and return
         self.value = stats.bernoulli.rvs(probability)

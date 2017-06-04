@@ -2,6 +2,9 @@
 # MCMC Labs Network class
 # Luke Newmeyer
 
+from random import shuffle
+import numpy as np
+
 class Network(object):
 
     def __init__(self, burn_samples=500, run_samples=200):
@@ -37,10 +40,15 @@ class Network(object):
         self.samples = []
         for i in range(samples):
             for j in range(self.run_samples):
-                row = []
-                for node in self.nodes:
+                row = [0] * len(self.nodes)
+                indicies = [i for i in range(len(self.nodes))]
+                shuffle(indicies)
+                for idx in indicies:
+                    row[idx] = self.nodes[idx].sample_conditional()
+                #for node in random_nodes:
                     #print('sampling node:', node)
-                    row.append(node.sample_conditional())
+                    #print([node.value for node in self.nodes])
+                    #row.append(node.sample_conditional())
                 self.sample_history.append(row)
             self.samples.append(self.sample_history[-1])
 
@@ -48,9 +56,20 @@ class Network(object):
 
     def estimate_probability(self, sequence):
 
-        count = 0
-        for sample in self.samples:
-            if sample == sequence:
-                count +=1
+        # Find indicies of empty elements in sequence
+        indicies = []
+        for idx, value in enumerate(sequence):
 
-        return count / len(self.samples)
+            # Add index if value is None
+            if value is not None:
+                indicies.append(idx)
+
+        # Form samples into columns without values None
+        samples = np.array(self.samples)[:,indicies]
+        sequence = np.array(sequence)[indicies]
+
+        # Count samples matching sequence
+        matches = (samples == sequence).all(axis=1)
+
+        # Estimate probability by dividing count by total samples
+        return matches.sum() / matches.size
