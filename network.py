@@ -7,7 +7,7 @@ import numpy as np
 
 class Network(object):
 
-    def __init__(self, burn_samples=500, run_samples=200):
+    def __init__(self, burn_samples=1000, run_samples=200):
 
         # Define object attributes
         self.nodes = []
@@ -20,7 +20,7 @@ class Network(object):
     def add_nodes(self, nodes):
         self.nodes.extend(nodes)
 
-    def burn(self, burn_samples=500):
+    def burn(self, burn_samples=1000):
         ''' Burn self.burn_samples in network '''
 
         # Set internal burn_samples
