@@ -46,8 +46,6 @@ class Network(object):
                 for idx in indicies:
                     row[idx] = self.nodes[idx].sample_conditional()
                 #for node in random_nodes:
-                    #print('sampling node:', node)
-                    #print([node.value for node in self.nodes])
                     #row.append(node.sample_conditional())
                 self.sample_history.append(row)
             self.samples.append(self.sample_history[-1])

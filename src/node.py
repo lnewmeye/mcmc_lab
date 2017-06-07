@@ -20,6 +20,7 @@ class Node(object):
         # Define object attributes
         self.fixed = fixed
         self.children = []
+        self.acceptance = 1e-36
 
         # Initialize value if no value passed
         if value == None:
@@ -34,14 +35,7 @@ class Node(object):
         self.fixed = True
 
     def set_unknown(self):
-        # TODO: add option to provide value?
         self.fixed = False
-
-    def set_value(self, value):
-        self.value = value
-
-    def get_value(self):
-        return self.value
 
     def add_child(self,  child):
         self.children.append(child)
@@ -50,8 +44,95 @@ class Node(object):
         for child in children:
             self.add_child(child)
 
-    def get_children(self):
-        return self.children
+    def sample_conditional(self):
+
+        # If node set to fixed, return value and exit
+        if self.fixed == True:
+            return self.value
+
+        # Get proposed value from proposal distribution and find probability
+        previous_value = self.value
+        self.value = self.sample_proposal()
+        new_acceptance = self.get_probability()
+
+        # Iterate through children and compute running product
+        for child in self.children:
+            new_acceptance *= child.current_probability()
+
+        # Compute acceptance ratio (alpha) from new and previous proportions
+        alpha = new_acceptance / self.acceptance
+        self.acceptance = new_acceptance
+
+        # Find new value based on Metropolis algorithm
+        if alpha < 1.0:
+            if stats.bernoulli.rvs(alpha) == 0:
+                self.value = previous_value
+
+        return self.value
+
+    def sample_proposal(self):
+        #TODO: Finish this function
+        pass
+
+
+
+class NormalNode(Node):
+    def __init__(self, value=None, fixed=False):
+        super(BernoulliNode, self).__init__(value, fixed)
+    def current_probability(self):
+        pass
+    def sample_distribution(self):
+        pass
+
+
+
+class GammaNode(Node):
+    def __init__(self, value=None, fixed=False):
+        super(BernoulliNode, self).__init__(value, fixed)
+    def current_probability(self):
+        pass
+    def sample_distribution(self):
+        pass
+
+
+
+class InvGammaNode(Node):
+    def __init__(self, value=None, fixed=False):
+        super(BernoulliNode, self).__init__(value, fixed)
+    def current_probability(self):
+        pass
+    def sample_distribution(self):
+        pass
+
+
+
+class PoissonNode(Node):
+    def __init__(self, value=None, fixed=False):
+        super(BernoulliNode, self).__init__(value, fixed)
+    def current_probability(self):
+        pass
+    def sample_distribution(self):
+        pass
+
+
+
+class BetaNode(Node):
+    def __init__(self, value=None, fixed=False):
+        super(BernoulliNode, self).__init__(value, fixed)
+    def current_probability(self):
+        pass
+    def sample_distribution(self):
+        pass
+
+
+
+#class BinomialNode(Node):
+    '''def __init__(self, value=None, fixed=False):
+        super(BernoulliNode, self).__init__(value, fixed)
+    def current_probability(self):
+        pass
+    def sample_distribution(self):
+        pass'''
 
 
 
@@ -69,23 +150,12 @@ class BernoulliNode(Node):
         # Call super node's init function
         super(BernoulliNode, self).__init__(value, fixed)
 
-    def get_true_probability(self):
+    def current_probability(self):
 
         # Get value for each dependency and append to array
         parent_values = []
         for parent in self.parents:
-            parent_values.append(parent.get_value())
-
-        # Save sample in object and return
-        probability = self.distribution.get_probability(parent_values)
-        return probability
-
-    def get_current_probability(self):
-
-        # Get value for each dependency and append to array
-        parent_values = []
-        for parent in self.parents:
-            parent_values.append(parent.get_value())
+            parent_values.append(parent.value)
 
         # Save sample in object and return
         probability = self.distribution.get_probability(parent_values)
@@ -100,7 +170,8 @@ class BernoulliNode(Node):
             return self.value
 
         # Get probability of distribution
-        probability = self.get_true_probability()
+        self.value = True
+        probability = self.current_probability()
 
         # Save sample in object and return
         self.value = stats.bernoulli.rvs(probability)
@@ -113,27 +184,24 @@ class BernoulliNode(Node):
             return self.value
 
         # Initalize numerator and denominator with current distribution
-        numerator = self.get_true_probability()
+        self.value = True
+        numerator = self.current_probability()
         denominator = 1 - numerator
 
-        # Iterate through children and make running product
+        # Iterate through children and compute running product
         for child in self.children:
 
-            # Spoof value to true and find probability
+            # Spoof children by setting value to true and compute probability
             self.value = True
-            numerator *= child.get_current_probability()
+            numerator *= child.current_probability()
 
-            # Spoof value to false and find probability
+            # Spoof children by setting value to false and compute probability
             self.value = False
-            denominator *= child.get_current_probability()
+            denominator *= child.current_probability()
 
         # Find probaility from bayes law
         denominator += numerator
         probability = numerator / denominator
-
-        #print('numerator =', numerator)
-        #print('denomiator =', denominator)
-        #print(probability)
 
         # Save sample value in object and return
         self.value = stats.bernoulli.rvs(probability)
@@ -146,18 +214,5 @@ class BernoulliNode(Node):
         self.dependencies = dependencies
         self.conditional = BernoulliTree(probabilities)
 
-'''    def sample_set_conditional(self):
 
-        # If node set to fixed, return value and exit
-        if self.fixed == True:
-            return self.value
 
-        # Get value for each dependency and append to array
-        dependency_values = []
-        for dependency in self.dependencies:
-            dependency_values.append(dependency.get_value())
-
-        # Save sample in object and return
-        probability = self.conditional.get_probability(dependency_values)
-        self.value = stats.bernoulli.rvs(probability)
-        return self.value'''
