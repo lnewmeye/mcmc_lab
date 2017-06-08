@@ -12,13 +12,19 @@ from node import *
 from network import Network
 from proposal import NormalProposal
 
-# Read in faculty data
-folder_name = '..' + os.sep + 'data'
-file_name = 'faculty.dat'
-file_path = os.path.join(folder_name, file_name)
-data = np.genfromtxt(file_path)
-
 # Create nodes in network
+A = NormalNode(20, 1, NormalProposal(0.002))
+E = BetaNode(1, 1, NormalProposal(?))
+B = GammaNode(
+D = BetaNode(A, E, NormalProposal(?))
+C = BernoulliNode()
+F = PoissonNode(D, ?)
+G = NormalNode(E, F, NormalProposal(0.002))
+
+# Set evidence nodes
+G.set_fixed(5)
+
+
 prior_mean = NormalNode(5, 1/9, NormalProposal(0.005))
 prior_variance = InvGammaNode(11, 2.5, NormalProposal(0.002))
 observations = []
