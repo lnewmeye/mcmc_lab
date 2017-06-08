@@ -145,16 +145,64 @@ class NormalNode(Node):
 
 
 class GammaNode(Node):
-    def __init__(self, value=None, fixed=False):
+
+    def __init__(self, alpha, beta, proposal, value=None, fixed=False):
+ 
+        # Create dictionary for parents
+        self.parents = {}
+
+        # Check if alpha is object or value and set appropriately
+        if isinstance(alpha, Node):
+            self.parents['alpha'] = alpha
+        else:
+            self.alpha = alpha
+
+        # Check if beta is object or value and set appropriately
+        if isinstance(beta, Node):
+            self.parents['beta'] = beta
+        else:
+            self.beta = beta
+
+        # Save proposal distribution to object
+        self.proposal = proposal
+
+        # Call super node's init function
         super(GammaNode, self).__init__(value, fixed)
+
     def current_probability(self):
-        pass
+
+        # Get alpha and beta from parents (if they exist)
+        if 'alpha' in self.parents:
+            self.alpha = self.parents['alpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Find probability for current value with current mean and variance
+        probability = stats.gamma.pdf(self.value, self.alpha,
+                scale=1/self.beta)
+        return probability
+
     def sample_distribution(self):
-        pass
+
+        # If node set to fixed, return value and exit
+        if self.fixed == True:
+            return self.value
+
+        # Get alpha and beta from parents (if they exist)
+        if 'alpha' in self.parents:
+            self.alpha = self.parents['alpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Sample distribution for given mean and variance
+        self.value = stats.gamma.rvs(self.alpha, scale=1/self.beta)
+        return self.value
+
 
 
 
 class InvGammaNode(Node):
+
     def __init__(self, alpha, beta, proposal, value=None, fixed=False):
 
         # Create dictionary for parents
@@ -189,9 +237,6 @@ class InvGammaNode(Node):
         # Find probability for current value with current mean and variance
         probability = stats.invgamma.pdf(self.value, self.alpha,
                 scale=self.beta)
-
-        #print('Gamma Probability:', probability)
-
         return probability
 
     def sample_distribution(self):
@@ -214,26 +259,102 @@ class InvGammaNode(Node):
 
 
 class PoissonNode(Node):
-    def __init__(self, value=None, fixed=False):
-        super(BernoulliNode, self).__init__(value, fixed)
+
+    def __init__(self, theta, proposal, value=None, fixed=False):
+
+        # Create dictionary for parents
+        self.parents = {}
+
+        # Check if alpha is object or value and set appropriately
+        if isinstance(theta, Node):
+            self.parents['theta'] = theta
+        else:
+            self.theta = theta
+
+        # Save proposal distribution to object
+        self.proposal = proposal
+
+        # Call super node's init function
+        super(PoissonNode, self).__init__(value, fixed)
+
     def current_probability(self):
-        pass
+
+        # Get theta from parent (if it exists)
+        if 'theta' in self.parents:
+            self.theta = self.parents['theta'].value
+
+        # Find probability for current value with current mean and variance
+        probability = stats.poisson.pmf(self.value, self.theta)
+        return probability
+
     def sample_distribution(self):
-        pass
+
+        # If node set to fixed, return value and exit
+        if self.fixed == True:
+            return self.value
+
+        # Get theta from parent (if it exists)
+        if 'theta' in self.parents:
+            self.theta = self.parents['theta'].value
+
+        # Sample distribution for given mean and variance
+        self.value = stats.poisson.rvs(self.theta)
+        return self.value
 
 
 
 class BetaNode(Node):
-    def __init__(self, value=None, fixed=False):
-        super(BernoulliNode, self).__init__(value, fixed)
+
+    def __init__(self, alpha, beta, proposal, value=None, fixed=False):
+
+        # Create dictionary for parents
+        self.parents = {}
+
+        # Check if alpha is object or value and set appropriately
+        if isinstance(alpha, Node):
+            self.parents['alpha'] = alpha
+        else:
+            self.alpha = alpha
+
+        # Check if beta is object or value and set appropriately
+        if isinstance(beta, Node):
+            self.parents['beta'] = beta
+        else:
+            self.beta = beta
+
+        # Save proposal distribution to object
+        self.proposal = proposal
+
+        # Call super node's init function
+        super(BetaNode, self).__init__(value, fixed)
+
     def current_probability(self):
-        pass
+
+        # Get alpha and beta from parents (if they exist)
+        if 'alpha' in self.parents:
+            self.alpha = self.parents['alpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Find probability for current value with current mean and variance
+        probability = stats.beta.pdf(self.value, self.alpha, self.beta)
+        return probability
+
     def sample_distribution(self):
-        pass
 
+        # If node set to fixed, return value and exit
+        if self.fixed == True:
+            return self.value
 
+        # Get alpha and beta from parents (if they exist)
+        if 'alpha' in self.parents:
+            self.alpha = self.parents['alpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
 
-#class BinomialNode(Node):
+        # Sample distribution for given mean and variance
+        self.value = stats.beta.rvs(self.alpha, self.beta)
+        return self.value
 
 
 
