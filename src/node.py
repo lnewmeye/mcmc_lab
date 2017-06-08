@@ -438,3 +438,73 @@ class BernoulliNode(Node):
 
 
 
+class NormalNodeSum(Node):
+
+    def __init__(self, mean1, mean2, variance, proposal, value=None, fixed=False):
+        ''' Initialize object given mean and variance nodes or numbers '''
+
+        # Create dictionary for parents
+        self.parents = {}
+
+        # Check if mean1 is object or value and set appropriately
+        if isinstance(mean1, Node):
+            self.parents['mean1'] = mean1
+        else:
+            self.mean1 = mean1
+
+        # Check if mean2 is object or value and set appropriately
+        if isinstance(mean2, Node):
+            self.parents['mean2'] = mean2
+        else:
+            self.mean2 = mean2
+
+        # Check if variance is object or value and set appropriately
+        if isinstance(variance, Node):
+            self.parents['variance'] = variance
+        else:
+            self.variance = variance
+
+        # Save proposal distribution to object
+        self.proposal = proposal
+
+        # Call super node's init function
+        super(NormalNodeSum, self).__init__(value, fixed)
+
+    def current_probability(self):
+
+        # Get mean and variance from parents (if they exist)
+        if 'mean1' in self.parents:
+            self.mean1 = self.parents['mean1'].value
+        if 'mean2' in self.parents:
+            self.mean2 = self.parents['mean2'].value
+        if 'variance' in self.parents:
+            self.variance = self.parents['variance'].value
+
+        # Find probability for current value with current mean and variance
+        #print('\t\tself.varinace =', self.variance)
+        #print('\t\tnp.sqrt(self.varinace) =', np.sqrt(self.variance))
+        probability = stats.norm.pdf(self.value, self.mean1 + self.mean2,
+                np.sqrt(self.variance))
+        return probability
+
+    def sample_distribution(self):
+
+        # If node set to fixed, return value and exit
+        if self.fixed == True:
+            return self.value
+
+        # Get mean and variance from parents (if they exist)
+        if 'mean1' in self.parents:
+            self.mean1 = self.parents['mean1'].value
+        if 'mean2' in self.parents:
+            self.mean2 = self.parents['mean2'].value
+        if 'variance' in self.parents:
+            self.variance = self.parents['variance'].value
+
+        # Sample distribution for given mean and variance
+        self.value = stats.norm.rvs(self.mean1+self.mean2, 
+                np.sqrt(self.variance))
+        return self.value
+
+
+
