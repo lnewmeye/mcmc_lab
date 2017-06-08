@@ -12,6 +12,7 @@ Instructions for use:
 
 from scipy import stats
 from bernoullitree import *
+import numpy as np
 
 class Node(object):
 
@@ -20,7 +21,7 @@ class Node(object):
         # Define object attributes
         self.fixed = fixed
         self.children = []
-        self.acceptance = 1e-36
+        self.acceptance = None
 
         # Initialize value if no value passed
         if value == None:
@@ -50,18 +51,30 @@ class Node(object):
         if self.fixed == True:
             return self.value
 
+        # Compute acceptance (if first iteration)
+        self.acceptance = self.current_probability()
+        for child in self.children:
+            self.acceptance *= child.current_probability()
+
         # Get proposed value from proposal distribution and find probability
         previous_value = self.value
-        self.value = self.sample_proposal()
-        new_acceptance = self.get_probability()
-
-        # Iterate through children and compute running product
-        for child in self.children:
-            new_acceptance *= child.current_probability()
+        self.value = self.proposal.sample(previous_value)
+        new_acceptance = self.current_probability()
+        if new_acceptance > 0.0:
+            # Iterate through children and compute running product
+            for child in self.children:
+                #print('\tnew_acceptance =', new_acceptance)
+                new_acceptance *= child.current_probability()
 
         # Compute acceptance ratio (alpha) from new and previous proportions
+        #print('new_acceptance =', new_acceptance)
+        #print('self.acceptance =', self.acceptance)
         alpha = new_acceptance / self.acceptance
         self.acceptance = new_acceptance
+
+        #print('Alpha:', alpha)
+        #print('self.value =', self.value)
+        #print('previous_value =', previous_value)
 
         # Find new value based on Metropolis algorithm
         if alpha < 1.0:
@@ -70,25 +83,70 @@ class Node(object):
 
         return self.value
 
-    def sample_proposal(self):
-        #TODO: Finish this function
-        pass
-
 
 
 class NormalNode(Node):
-    def __init__(self, value=None, fixed=False):
-        super(BernoulliNode, self).__init__(value, fixed)
+
+    def __init__(self, mean, variance, proposal, value=None, fixed=False):
+        ''' Initialize object given mean and variance nodes or numbers '''
+
+        # Create dictionary for parents
+        self.parents = {}
+
+        # Check if mean is object or value and set appropriately
+        if isinstance(mean, Node):
+            self.parents['mean'] = mean
+        else:
+            self.mean = mean
+
+        # Check if variance is object or value and set appropriately
+        if isinstance(variance, Node):
+            self.parents['variance'] = variance
+        else:
+            self.variance = variance
+
+        # Save proposal distribution to object
+        self.proposal = proposal
+
+        # Call super node's init function
+        super(NormalNode, self).__init__(value, fixed)
+
     def current_probability(self):
-        pass
+
+        # Get mean and variance from parents (if they exist)
+        if 'mean' in self.parents:
+            self.mean = self.parents['mean'].value
+        if 'variance' in self.parents:
+            self.variance = self.parents['variance'].value
+
+        # Find probability for current value with current mean and variance
+        #print('\t\tself.varinace =', self.variance)
+        #print('\t\tnp.sqrt(self.varinace) =', np.sqrt(self.variance))
+        probability = stats.norm.pdf(self.value, self.mean, 
+                np.sqrt(self.variance))
+        return probability
+
     def sample_distribution(self):
-        pass
+
+        # If node set to fixed, return value and exit
+        if self.fixed == True:
+            return self.value
+
+        # Get mean and variance from parents (if they exist)
+        if 'mean' in self.parents:
+            self.mean = self.parents['mean'].value
+        if 'variance' in self.parents:
+            self.variance = self.parents['variance'].value
+
+        # Sample distribution for given mean and variance
+        self.value = stats.norm.rvs(self.mean, np.sqrt(self.variance))
+        return self.value
 
 
 
 class GammaNode(Node):
     def __init__(self, value=None, fixed=False):
-        super(BernoulliNode, self).__init__(value, fixed)
+        super(GammaNode, self).__init__(value, fixed)
     def current_probability(self):
         pass
     def sample_distribution(self):
@@ -97,12 +155,61 @@ class GammaNode(Node):
 
 
 class InvGammaNode(Node):
-    def __init__(self, value=None, fixed=False):
-        super(BernoulliNode, self).__init__(value, fixed)
+    def __init__(self, alpha, beta, proposal, value=None, fixed=False):
+
+        # Create dictionary for parents
+        self.parents = {}
+
+        # Check if alpha is object or value and set appropriately
+        if isinstance(alpha, Node):
+            self.parents['alpha'] = alpha
+        else:
+            self.alpha = alpha
+
+        # Check if beta is object or value and set appropriately
+        if isinstance(beta, Node):
+            self.parents['beta'] = beta
+        else:
+            self.beta = beta
+
+        # Save proposal distribution to object
+        self.proposal = proposal
+
+        # Call super node's init function
+        super(InvGammaNode, self).__init__(value, fixed)
+
     def current_probability(self):
-        pass
+
+        # Get alpha and beta from parents (if they exist)
+        if 'alpha' in self.parents:
+            self.alpha = self.parents['alpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Find probability for current value with current mean and variance
+        probability = stats.invgamma.pdf(self.value, self.alpha,
+                scale=self.beta)
+
+        #print('Gamma Probability:', probability)
+
+        return probability
+
     def sample_distribution(self):
-        pass
+
+        # If node set to fixed, return value and exit
+        if self.fixed == True:
+            return self.value
+
+        # Get alpha and beta from parents (if they exist)
+        if 'alpha' in self.parents:
+            self.alpha = self.parents['alpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Sample distribution for given mean and variance
+        self.value = stats.invgamma.rvs(self.alpha, scale=self.beta)
+        return self.value
+
 
 
 
@@ -127,12 +234,6 @@ class BetaNode(Node):
 
 
 #class BinomialNode(Node):
-    '''def __init__(self, value=None, fixed=False):
-        super(BernoulliNode, self).__init__(value, fixed)
-    def current_probability(self):
-        pass
-    def sample_distribution(self):
-        pass'''
 
 
 

@@ -71,3 +71,9 @@ class Network(object):
 
         # Estimate probability by dividing count by total samples
         return matches.sum() / matches.size
+
+    def estimate_mean(self, node_number):
+
+        # Return estimate for column of node_number
+        samples = np.array(self.samples)[:,node_number]
+        return np.mean(samples)
