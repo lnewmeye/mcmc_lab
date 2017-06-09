@@ -118,12 +118,14 @@ class NormalNode(Node):
             self.parents['mean'] = mean
         else:
             self.mean = mean
+        self.original_mean = mean
 
         # Check if variance is object or value and set appropriately
         if isinstance(variance, Node):
             self.parents['variance'] = variance
         else:
             self.variance = variance
+        self.original_variance = variance
 
         # Save proposal distribution to object
         self.proposal = proposal
@@ -174,6 +176,10 @@ class NormalNode(Node):
         self.value = stats.norm.rvs(self.mean, np.sqrt(self.variance))
         return self.value
 
+    def probability_density(self, linspace):
+        return stats.norm.pdf(linspace, self.original_mean, 
+                np.sqrt(self.original_variance))
+
 
 
 class GammaNode(Node):
@@ -188,12 +194,14 @@ class GammaNode(Node):
             self.parents['alpha'] = alpha
         else:
             self.alpha = alpha
+        self.original_alpha = alpha
 
         # Check if beta is object or value and set appropriately
         if isinstance(beta, Node):
             self.parents['beta'] = beta
         else:
             self.beta = beta
+        self.original_beta = beta
 
         # Save proposal distribution to object
         self.proposal = proposal
@@ -243,6 +251,9 @@ class GammaNode(Node):
         self.value = stats.gamma.rvs(self.alpha, scale=1/self.beta)
         return self.value
 
+    def probability_density(self, linspace):
+        return stats.gamma.pdf(linspace, self.original_alpha, 
+                scale=1/self.original_beta)
 
 
 
@@ -258,12 +269,14 @@ class InvGammaNode(Node):
             self.parents['alpha'] = alpha
         else:
             self.alpha = alpha
+        self.original_alpha = alpha
 
         # Check if beta is object or value and set appropriately
         if isinstance(beta, Node):
             self.parents['beta'] = beta
         else:
             self.beta = beta
+        self.original_beta = beta
 
         # Save proposal distribution to object
         self.proposal = proposal
@@ -313,6 +326,10 @@ class InvGammaNode(Node):
         self.value = stats.invgamma.rvs(self.alpha, scale=self.beta)
         return self.value
 
+    def probability_density(self, linspace):
+        return stats.invgamma.pdf(linspace, self.original_alpha, 
+                scale=self.original_beta)
+
 
 
 
@@ -328,6 +345,7 @@ class PoissonNode(Node):
             self.parents['theta'] = theta
         else:
             self.theta = theta
+        self.original_theta = theta
 
         # Save proposal distribution to object
         self.proposal = proposal
@@ -370,6 +388,9 @@ class PoissonNode(Node):
         self.value = stats.poisson.rvs(self.theta)
         return self.value
 
+    def probability_density(self, linspace):
+        return stats.poisson.pmf(linspace, self.original_theta)
+
 
 
 class BetaNode(Node):
@@ -384,12 +405,14 @@ class BetaNode(Node):
             self.parents['alpha'] = alpha
         else:
             self.alpha = alpha
+        self.original_alpha = alpha
 
         # Check if beta is object or value and set appropriately
         if isinstance(beta, Node):
             self.parents['beta'] = beta
         else:
             self.beta = beta
+        self.original_beta = beta
 
         # Save proposal distribution to object
         self.proposal = proposal
@@ -440,6 +463,10 @@ class BetaNode(Node):
         # Sample distribution for given mean and variance
         self.value = stats.beta.rvs(self.alpha, self.beta)
         return self.value
+
+    def probability_density(self, linspace):
+        return stats.invgamma.pdf(linspace, self.original_alpha, 
+                self.original_beta)
 
 
 
@@ -536,18 +563,21 @@ class NormalNodeSum(Node):
             self.parents['mean1'] = mean1
         else:
             self.mean1 = mean1
+        self.original_mean1 = mean1
 
         # Check if mean2 is object or value and set appropriately
         if isinstance(mean2, Node):
             self.parents['mean2'] = mean2
         else:
             self.mean2 = mean2
+        self.original_mean2 = mean2
 
         # Check if variance is object or value and set appropriately
         if isinstance(variance, Node):
             self.parents['variance'] = variance
         else:
             self.variance = variance
+        self.original_variance = variance
 
         # Save proposal distribution to object
         self.proposal = proposal
@@ -605,5 +635,8 @@ class NormalNodeSum(Node):
                 np.sqrt(self.variance))
         return self.value
 
+    def probability_density(self, linspace):
+        return stats.norm.pdf(linspace, self.original_mean1 + \
+                self.original_mean2, np.sqrt(self.original_variance))
 
 

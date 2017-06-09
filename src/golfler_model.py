@@ -55,10 +55,11 @@ for entry in data:
     # Create observation node and add as child to tour and golfer
     observation = NormalNodeSum(golfers[name], tours[number], 
             observation_var, NormalProposal(0.002))
+    observation.set_fixed(score)
     observation_var.add_child(observation)
     golfers[name].add_child(observation)
     tours[number].add_child(observation)
-    observation.set_fixed(score)
+    observations.append(observation)
 
 # Create network and add nodes
 network = Network(10, 2) #TODO: Make sure to change this back to 200 or so

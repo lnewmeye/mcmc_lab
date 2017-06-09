@@ -39,33 +39,75 @@ network.add_nodes(observations)
 
 # Burn off samples
 network.burn(100)
-network.sample(50)
+network.sample(200)
+
+# Retrieve data from network
+burn = np.array(network.burn_history)
+mixing = np.array(network.sample_history)
+samples = np.array(network.samples)
 
 # Plot burn in of prior_mean
-samples = np.array(network.burn_history)[:,0]
-plt.plot(samples, label='Prior Mean Burn')
+mean_burn = burn[:,0]
+plt.plot(mean_burn, label='Prior Mean Burn')
 plt.title('Prior Mean Burn History')
+plt.xlabel('Sample')
+plt.ylabel('Sample Value')
+plt.savefig('../img/faculty/prior_mean_burn.png')
 plt.show()
+plt.clf()
 
 # Plot mixing of prior_mean
-samples = np.array(network.sample_history)[:,0]
-plt.plot(samples, label='Prior Mean Mixing')
+mean_mixing = mixing[:,0]
+plt.plot(mean_mixing, label='Prior Mean Mixing')
 plt.title('Prior Mean Mixing')
+plt.xlabel('Sample')
+plt.ylabel('Sample Value')
+plt.savefig('../img/faculty/prior_mean_mixing.png')
 plt.show()
+plt.clf()
 
 # Plot burn in of prior_variance
-samples = np.array(network.burn_history)[:,1]
-plt.plot(samples, label='Prior Variance Burn')
+var_burn = burn[:,1]
+plt.plot(var_burn, label='Prior Variance Burn')
 plt.title('Prior Variance Burn History')
+plt.xlabel('Sample')
+plt.ylabel('Sample Value')
+plt.savefig('../img/faculty/prior_variance_burn.png')
 plt.show()
+plt.clf()
 
 # Plot mixing of prior_variance
-samples = np.array(network.sample_history)[:,1]
-plt.plot(samples, label='Prior Variance Mixing')
+var_mixing = mixing[:,1]
+plt.plot(var_mixing, label='Prior Variance Mixing')
 plt.title('Prior Variance Mixing')
+plt.xlabel('Sample')
+plt.ylabel('Sample Value')
+plt.savefig('../img/faculty/prior_variance_mixing.png')
+plt.show()
+plt.clf()
+
+# Plot histogram for prior_mean
+mean_samples = samples[:,0]
+plt.hist(mean_samples, bins=15, normed=True)
+x_axis = np.arange(4, 6, 0.01)
+y_axis = prior_mean.probability_density(x_axis)
+plt.plot(x_axis, y_axis)
 plt.show()
 
+# Plot histogram for prior_variance
+var_samples = samples[:,1]
+plt.hist(var_samples, bins=15, normed=True)
+x_axis = np.arange(0, 1, 0.005)
+y_axis = prior_variance.probability_density(x_axis)
+plt.plot(x_axis, y_axis)
+plt.show()
+
+# Print statistics
+print('Average of variance node:', np.mean(var_samples))
+print('Average of mean node:', np.mean(mean_samples))
+print('Variance of data:', np.var(data))
+print('Mean of data:', np.mean(data))
+
 # Return estimates
-prior_mean_estimate = network.estimate_mean(0)
-print('prior_mean_estimate =', prior_mean_estimate)
-print(np.array(network.samples)[:,0])
+#prior_mean_estimate = network.estimate_mean(0)
+#print('prior_mean_estimate =', prior_mean_estimate)
