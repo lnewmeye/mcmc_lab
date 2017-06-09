@@ -11,6 +11,7 @@ Instructions for use:
 '''
 
 from scipy import stats
+from scipy.special import gammaln
 from bernoullitree import *
 import numpy as np
 
@@ -21,7 +22,7 @@ class Node(object):
         # Define object attributes
         self.fixed = fixed
         self.children = []
-        self.acceptance = None
+        self.likelihood = None
 
         # Initialize value if no value passed
         if value == None:
@@ -51,36 +52,55 @@ class Node(object):
         if self.fixed == True:
             return self.value
 
-        # Compute acceptance (if first iteration)
-        self.acceptance = self.current_probability()
+        # Compute likelihood (if first iteration)
+        self.likelihood = self.current_likelihood() #TODO: Remove this and adjust to user previous value
         for child in self.children:
-            self.acceptance *= child.current_probability()
+            self.likelihood += child.current_likelihood()
+        print('self.likelihood =', self.likelihood)
+        self.probability = self.current_probability() #TODO: Remove this and adjust to user previous value
+        for child in self.children:
+            self.probability += child.current_probability()
+        print('self.probability =', self.probability)
 
         # Get proposed value from proposal distribution and find probability
         previous_value = self.value
         self.value = self.proposal.sample(previous_value)
-        new_acceptance = self.current_probability()
-        if new_acceptance > 0.0:
+        new_probability = self.current_probability()
+        if new_probability < 0.0:
+            for child in self.childern:
+                new_probability *= child.current_probability()
+        new_likelihood = self.current_likelihood()
+        if np.isfinite(new_likelihood):
+
             # Iterate through children and compute running product
             for child in self.children:
-                #print('\tnew_acceptance =', new_acceptance)
-                new_acceptance *= child.current_probability()
+                #print('\tnew_acceptance =', new_likelihood)
+                new_likelihood += child.current_likelihood()
+            print('new_probability =', new_probability)
+            print('new_likelihood =', new_likelihood)
 
-        # Compute acceptance ratio (alpha) from new and previous proportions
-        #print('new_acceptance =', new_acceptance)
-        #print('self.acceptance =', self.acceptance)
-        alpha = new_acceptance / self.acceptance
-        self.acceptance = new_acceptance
+            print('difference =', new_likelihood - self.likelihood)
+            alpha = np.exp(new_likelihood - self.likelihood)
+            print('old_alpha =', new_probability / self.probability)
+            print('alpha =', alpha)
+            self.likelihood = new_likelihood
+
+            # Find new value based on Metropolis algorithm
+            if alpha < 1.0:
+                if stats.bernoulli.rvs(alpha) == 0:
+                    self.value = previous_value
+
+        else: #TODO: Remove (for debug only)
+            print('value not finite:', new_likelihood)
+            self.value = previous_value
+
+        # Compute likelihood ratio (alpha) from new and previous proportions
+        #print('new_likelihood =', new_likelihood)
+        #print('self.likelihood =', self.likelihood)
 
         #print('Alpha:', alpha)
         #print('self.value =', self.value)
         #print('previous_value =', previous_value)
-
-        # Find new value based on Metropolis algorithm
-        if alpha < 1.0:
-            if stats.bernoulli.rvs(alpha) == 0:
-                self.value = previous_value
-
         return self.value
 
 
@@ -110,6 +130,18 @@ class NormalNode(Node):
 
         # Call super node's init function
         super(NormalNode, self).__init__(value, fixed)
+
+    def current_likelihood(self):
+
+        # Get mean and variance from parents (if they exist)
+        if 'mean' in self.parents:
+            self.mean = self.parents['mean'].value
+        if 'variance' in self.parents:
+            self.variance = self.parents['variance'].value
+
+        likelihood = -1/2 * (np.log(self.variance) + \
+                (self.value - self.mean)**2 / self.variance)
+        return likelihood
 
     def current_probability(self):
 
@@ -169,6 +201,19 @@ class GammaNode(Node):
         # Call super node's init function
         super(GammaNode, self).__init__(value, fixed)
 
+    def current_likelihood(self):
+
+        # Get alpha and beta from parents (if they exist)
+        if 'alpha' in self.parents:
+            self.alpha = self.parents['alpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Find probability for current value with current mean and variance
+        likelihood = self.alpha * np.log(self.beta) - gammaln(self.alpha) + \
+                (self.alpha + 1) * np.log(self.value) - self.beta * self.value
+        return likelihood
+
     def current_probability(self):
 
         # Get alpha and beta from parents (if they exist)
@@ -226,6 +271,19 @@ class InvGammaNode(Node):
         # Call super node's init function
         super(InvGammaNode, self).__init__(value, fixed)
 
+    def current_likelihood(self):
+
+        # Get alpha and beta from parents (if they exist)
+        if 'alpha' in self.parents:
+            self.alpha = self.parents['alpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Find probability for current value with current mean and variance
+        likelihood = self.alpha * np.log(self.beta) - gammaln(self.alpha) - \
+                (self.alpha + 1) * np.log(self.value) - self.beta / self.value
+        return likelihood
+
     def current_probability(self):
 
         # Get alpha and beta from parents (if they exist)
@@ -277,6 +335,17 @@ class PoissonNode(Node):
         # Call super node's init function
         super(PoissonNode, self).__init__(value, fixed)
 
+    def current_likelihood(self):
+
+        # Get theta from parent (if it exists)
+        if 'theta' in self.parents:
+            self.theta = self.parents['theta'].value
+
+        # Find probability for current value with current mean and variance
+        likelihood = -self.theta + self.value * np.log(self.theta) - \
+                gammaln(self.value + 1) #TODO: Verify that this works
+        return likelihood
+
     def current_probability(self):
 
         # Get theta from parent (if it exists)
@@ -327,6 +396,22 @@ class BetaNode(Node):
 
         # Call super node's init function
         super(BetaNode, self).__init__(value, fixed)
+
+    def current_likelihood(self):
+
+        # Get alpha and beta from parents (if they exist)
+        if 'alpha' in self.parents:
+            self.alpha = self.parents['alpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Find probability for current value with current mean and variance
+        likelihood = gammaln(self.alpha + self.beta) + \
+                (self.alpha - 1) * np.log(self.value) + \
+                (self.beta - 1) * np.log(1 - self.value) - \
+                gammaln(self.alpha) - gammaln(self.beta)
+        return likelihood
+
 
     def current_probability(self):
 
@@ -469,6 +554,20 @@ class NormalNodeSum(Node):
 
         # Call super node's init function
         super(NormalNodeSum, self).__init__(value, fixed)
+
+    def current_likelihood(self):
+
+        # Get mean and variance from parents (if they exist)
+        if 'mean1' in self.parents:
+            self.mean1 = self.parents['mean1'].value
+        if 'mean2' in self.parents:
+            self.mean2 = self.parents['mean2'].value
+        if 'variance' in self.parents:
+            self.variance = self.parents['variance'].value
+
+        likelihood = -1/2 * (np.log(self.variance) - \
+                (self.value - self.mean1 + self.mean2)**2 / self.variance)
+        return likelihood
 
     def current_probability(self):
 
