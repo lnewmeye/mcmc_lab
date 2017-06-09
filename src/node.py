@@ -201,6 +201,19 @@ class GammaNode(Node):
         # Call super node's init function
         super(GammaNode, self).__init__(value, fixed)
 
+    def current_likelihood(self):
+
+        # Get alpha and beta from parents (if they exist)
+        if 'alpha' in self.parents:
+            self.alpha = self.parents['alpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Find probability for current value with current mean and variance
+        likelihood = self.alpha * np.log(self.beta) - gammaln(self.alpha) + \
+                (self.alpha + 1) * np.log(self.value) - self.beta * self.value
+        return likelihood
+
     def current_probability(self):
 
         # Get alpha and beta from parents (if they exist)
@@ -322,6 +335,17 @@ class PoissonNode(Node):
         # Call super node's init function
         super(PoissonNode, self).__init__(value, fixed)
 
+    def current_likelihood(self):
+
+        # Get theta from parent (if it exists)
+        if 'theta' in self.parents:
+            self.theta = self.parents['theta'].value
+
+        # Find probability for current value with current mean and variance
+        likelihood = -self.theta + self.value * np.log(self.theta) - \
+                gammaln(self.value + 1) #TODO: Verify that this works
+        return likelihood
+
     def current_probability(self):
 
         # Get theta from parent (if it exists)
@@ -372,6 +396,22 @@ class BetaNode(Node):
 
         # Call super node's init function
         super(BetaNode, self).__init__(value, fixed)
+
+    def current_likelihood(self):
+
+        # Get alpha and beta from parents (if they exist)
+        if 'alpha' in self.parents:
+            self.alpha = self.parents['alpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Find probability for current value with current mean and variance
+        likelihood = gammaln(self.alpha + self.beta) + \
+                (self.alpha - 1) * np.log(self.value) + \
+                (self.beta - 1) * np.log(1 - self.value) - \
+                gammaln(self.alpha) - gammaln(self.beta)
+        return likelihood
+
 
     def current_probability(self):
 
