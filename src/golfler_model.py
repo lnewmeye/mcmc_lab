@@ -13,10 +13,10 @@ from network import Network
 from proposal import NormalProposal
 
 # Create hyper nodes for network
-observation_var = InvGammaNode(83, 1/0.0014, NormalProposal(0.01))
-golfer_var = InvGammaNode(18, 1/0.015, NormalProposal(0.01))
-tour_mean = NormalNode(72, 2, NormalProposal(0.01))
-tour_var = InvGammaNode(18, 1/0.015, NormalProposal(0.015))
+observation_var = InvGammaNode(83, 1/0.0014, NormalProposal(0.05))
+golfer_var = InvGammaNode(18, 1/0.015, NormalProposal(0.05))
+tour_mean = NormalNode(72, 2, NormalProposal(0.02))
+tour_var = InvGammaNode(18, 1/0.015, NormalProposal(0.03))
 
 # Create structures to store golfer, tournament and observation nodes
 golfers = {}
@@ -41,7 +41,7 @@ for entry in data:
 
     # Make golfer node (if not already created)
     if name not in golfers:
-        golfer = NormalNode(0, golfer_var, NormalProposal(0.02))
+        golfer = NormalNode(0, golfer_var, NormalProposal(0.1))
         golfer_var.add_child(golfer)
         golfers[name] = golfer
 
