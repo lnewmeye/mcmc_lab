@@ -56,19 +56,19 @@ class Node(object):
         self.likelihood = self.current_likelihood() #TODO: Remove this and adjust to user previous value
         for child in self.children:
             self.likelihood += child.current_likelihood()
-        print('self.likelihood =', self.likelihood)
-        self.probability = self.current_probability() #TODO: Remove this and adjust to user previous value
-        for child in self.children:
-            self.probability += child.current_probability()
-        print('self.probability =', self.probability)
+        #print('self.likelihood =', self.likelihood)
+        #self.probability = self.current_probability() #TODO: Remove this and adjust to user previous value
+        #for child in self.children:
+            #self.probability += child.current_probability()
+        #print('self.probability =', self.probability)
 
         # Get proposed value from proposal distribution and find probability
         previous_value = self.value
         self.value = self.proposal.sample(previous_value)
-        new_probability = self.current_probability()
-        if new_probability < 0.0:
-            for child in self.childern:
-                new_probability *= child.current_probability()
+        #new_probability = self.current_probability()
+        #if new_probability < 0.0:
+            #for child in self.childern:
+                #new_probability *= child.current_probability()
         new_likelihood = self.current_likelihood()
         if np.isfinite(new_likelihood):
 
@@ -76,13 +76,13 @@ class Node(object):
             for child in self.children:
                 #print('\tnew_acceptance =', new_likelihood)
                 new_likelihood += child.current_likelihood()
-            print('new_probability =', new_probability)
-            print('new_likelihood =', new_likelihood)
+            #print('new_probability =', new_probability)
+            #print('new_likelihood =', new_likelihood)
 
-            print('difference =', new_likelihood - self.likelihood)
+            #print('difference =', new_likelihood - self.likelihood)
             alpha = np.exp(new_likelihood - self.likelihood)
-            print('old_alpha =', new_probability / self.probability)
-            print('alpha =', alpha)
+            #print('old_alpha =', new_probability / self.probability)
+            #print('alpha =', alpha)
             self.likelihood = new_likelihood
 
             # Find new value based on Metropolis algorithm
@@ -90,8 +90,8 @@ class Node(object):
                 if stats.bernoulli.rvs(alpha) == 0:
                     self.value = previous_value
 
-        else: #TODO: Remove (for debug only)
-            print('value not finite:', new_likelihood)
+        else:
+            #print('value not finite:', new_likelihood)
             self.value = previous_value
 
         # Compute likelihood ratio (alpha) from new and previous proportions
@@ -343,7 +343,7 @@ class PoissonNode(Node):
 
         # Find probability for current value with current mean and variance
         likelihood = -self.theta + self.value * np.log(self.theta) - \
-                gammaln(self.value + 1) #TODO: Verify that this works
+                gammaln(self.value + 1)
         return likelihood
 
     def current_probability(self):
