@@ -13,10 +13,10 @@ from network import Network
 from proposal import NormalProposal
 
 # Create hyper nodes for network
-observation_var = InvGammaNode(83, 1/0.0014, NormalProposal(0.002))
-golfer_var = InvGammaNode(18, 1/0.015, NormalProposal(0.002))
-tour_mean = NormalNode(72, 2, NormalProposal(0.005))
-tour_var = InvGammaNode(18, 1/0.015, NormalProposal(0.002))
+observation_var = InvGammaNode(83, 1/0.0014, NormalProposal(0.01))
+golfer_var = InvGammaNode(18, 1/0.015, NormalProposal(0.01))
+tour_mean = NormalNode(72, 2, NormalProposal(0.01))
+tour_var = InvGammaNode(18, 1/0.015, NormalProposal(0.015))
 
 # Create structures to store golfer, tournament and observation nodes
 golfers = {}
@@ -41,7 +41,7 @@ for entry in data:
 
     # Make golfer node (if not already created)
     if name not in golfers:
-        golfer = NormalNode(0, golfer_var, NormalProposal(0.002))
+        golfer = NormalNode(0, golfer_var, NormalProposal(0.02))
         golfer_var.add_child(golfer)
         golfers[name] = golfer
 
@@ -71,7 +71,7 @@ network.add_node(tour_var)
 network.add_nodes(observations)
 
 # Burn off and sample
-network.burn(50)
+network.burn(700)
 
 # Get network data
 burn_history = np.array(network.burn_history)
@@ -80,21 +80,44 @@ burn_history = np.array(network.burn_history)
 plt.plot(burn_history[:,0])
 plt.title('observation_var')
 plt.savefig('../img/observation_var.png')
+plt.clf()
 plt.plot(burn_history[:,1])
 plt.title('golfer_var')
 plt.savefig('../img/golfer_var.png')
+plt.clf()
 plt.plot(burn_history[:,2])
 plt.title('tour_mean')
 plt.savefig('../img/tour_mean.png')
+plt.clf()
 plt.plot(burn_history[:,3])
 plt.title('tour_var')
 plt.savefig('../img/tour_var.png')
+plt.clf()
 plt.plot(burn_history[:,5])
 plt.title('golfer1')
 plt.savefig('../img/golfer1.png')
+plt.clf()
 plt.plot(burn_history[:,6])
 plt.title('golfer2')
 plt.savefig('../img/golfer2.png')
+plt.clf()
 plt.plot(burn_history[:,7])
 plt.title('golfer3')
 plt.savefig('../img/golfer3.png')
+plt.clf()
+plt.plot(burn_history[:,4+len(golfers),+3])
+plt.title('tour1')
+plt.savefig('../img/tour1.png')
+plt.clf()
+plt.plot(burn_history[:,4+len(golfers),+4])
+plt.title('tour2')
+plt.savefig('../img/tour2.png')
+plt.clf()
+plt.plot(burn_history[:,4+len(golfers),+5])
+plt.title('tour3')
+plt.savefig('../img/tour3.png')
+plt.clf()
+plt.plot(burn_history[:,-1])
+plt.title('oberved1')
+plt.savefig('../img/observed1.png')
+plt.clf()
