@@ -596,7 +596,7 @@ class NormalNodeSum(Node):
             self.variance = self.parents['variance'].value
 
         likelihood = -1/2 * (np.log(self.variance) + \
-                (self.value - self.mean1 + self.mean2)**2 / self.variance)
+                (self.value - (self.mean1 + self.mean2))**2 / self.variance)
         return likelihood
 
     def current_probability(self):
