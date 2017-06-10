@@ -40,13 +40,14 @@ class Network(object):
         self.samples = []
         for i in range(samples):
             for j in range(self.run_samples):
-                row = [0] * len(self.nodes)
-                indicies = [i for i in range(len(self.nodes))]
-                shuffle(indicies)
-                for idx in indicies:
-                    row[idx] = self.nodes[idx].sample_conditional()
-                #for node in random_nodes:
-                    #row.append(node.sample_conditional())
+                row = []
+                #row = [0] * len(self.nodes)
+                #indicies = [i for i in range(len(self.nodes))]
+                #shuffle(indicies)
+                #for idx in indicies:
+                    #row[idx] = self.nodes[idx].sample_conditional()
+                for node in self.nodes:
+                    row.append(node.sample_conditional())
                 self.sample_history.append(row)
             self.samples.append(self.sample_history[-1])
 

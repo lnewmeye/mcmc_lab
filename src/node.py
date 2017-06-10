@@ -124,7 +124,7 @@ class NormalNode(Node):
             self.parents['mean'] = mean
         else:
             self.mean = mean
-        self.original_variance = variance
+        self.original_mean = mean
 
         # Check if variance is object or value and set appropriately
         if isinstance(variance, Node):
@@ -148,8 +148,11 @@ class NormalNode(Node):
         if 'variance' in self.parents:
             self.variance = self.parents['variance'].value
 
-        likelihood = -1/2 * (np.log(self.variance) + \
-                (self.value - self.mean)**2 / self.variance)
+        if self.variance > 0:
+            likelihood = -1/2 * (np.log(self.variance) + \
+                    (self.value - self.mean)**2 / self.variance)
+        else:
+            likelihood = self.value == self.mean
         return likelihood
 
     def current_probability(self):
@@ -220,13 +223,16 @@ class GammaNode(Node):
 
         # Get alpha and beta from parents (if they exist)
         if 'alpha' in self.parents:
-            self.alpha = self.parents['alpha'].value
+            if isinstance(self.parents['alpha'], NormalNodePi):
+                self.alpha = self.parents['alpha'].node.value
+            else:
+                self.alpha = self.parents['alpha'].value
         if 'beta' in self.parents:
             self.beta = self.parents['beta'].value
 
         # Find probability for current value with current mean and variance
         likelihood = self.alpha * np.log(self.beta) - gammaln(self.alpha) + \
-                (self.alpha + 1) * np.log(self.value) - self.beta * self.value
+                (self.alpha - 1) * np.log(self.value) - self.beta * self.value
         return likelihood
 
     def current_probability(self):
@@ -491,6 +497,19 @@ class BernoulliNode(Node):
         # Call super node's init function
         super(BernoulliNode, self).__init__(value, fixed)
 
+    def current_likelihood(self):
+
+        # Get value for each dependency and append to array
+        parent_values = []
+        for parent in self.parents:
+            parent_values.append(parent.value)
+
+        # Save sample in object and return
+        probability = self.distribution.get_probability(parent_values)
+        if self.value == True:
+            return np.log(probability)
+        return np.log(1 - probability)
+
     def current_probability(self):
 
         # Get value for each dependency and append to array
@@ -647,9 +666,10 @@ class NormalNodeSum(Node):
                 self.original_mean2, np.sqrt(self.original_variance))
 
 
-class NormalNodePi(Node):
 
-    def __init__(self, mean, variance, proposal, value=None, fixed=False, name=None):
+class NormalSqVarNode(Node):
+
+    def __init__(self, mean, variance_sq, proposal, value=None, fixed=False):
         ''' Initialize object given mean and variance nodes or numbers '''
 
         # Create dictionary for parents
@@ -660,45 +680,42 @@ class NormalNodePi(Node):
             self.parents['mean'] = mean
         else:
             self.mean = mean
-        self.original_variance = variance
 
-        # Check if variance is object or value and set appropriately
-        if isinstance(variance, Node):
-            self.parents['variance'] = variance
+        # Check if variance_sq is object or value and set appropriately
+        if isinstance(variance_sq, Node):
+            self.parents['variance_sq'] = variance_sq
         else:
-            self.variance = variance
-        self.original_variance = variance
+            self.variance_sq = variance_sq
 
         # Save proposal distribution to object
         self.proposal = proposal
-        self.name = name
 
         # Call super node's init function
-        super(NormalNode, self).__init__(value, fixed)
+        super(NormalSqVarNode, self).__init__(value, fixed)
 
     def current_likelihood(self):
 
-        # Get mean and variance from parents (if they exist)
+        # Get mean and variance_sq from parents (if they exist)
         if 'mean' in self.parents:
             self.mean = self.parents['mean'].value
-        if 'variance' in self.parents:
-            self.variance = self.parents['variance'].value
+        if 'variance_sq' in self.parents:
+            self.variance_sq = self.parents['variance_sq'].value
 
-        likelihood = -np.pi/2 * (np.log(self.variance) + \
-                (self.value - self.mean)**2 / self.variance)
+        likelihood = -1/2 * (np.log(np.sqrt(self.variance_sq)) + \
+                (self.value - self.mean)**2 / np.sqrt(self.variance_sq))
         return likelihood
 
     def current_probability(self):
 
-        # Get mean and variance from parents (if they exist)
+        # Get mean and variance_sq from parents (if they exist)
         if 'mean' in self.parents:
             self.mean = self.parents['mean'].value
-        if 'variance' in self.parents:
-            self.variance = self.parents['variance'].value
+        if 'variance_sq' in self.parents:
+            self.variance_sq = self.parents['variance_sq'].value
 
-        # Find probability for current value with current mean and variance
+        # Find probability for current value with current mean and variance_sq
         probability = stats.norm.pdf(self.value, self.mean, 
-                np.sqrt(self.variance))
+                np.sqrt(np.sqrt(self.variance_sq)))
         return probability
 
     def sample_distribution(self):
@@ -707,18 +724,26 @@ class NormalNodePi(Node):
         if self.fixed == True:
             return self.value
 
-        # Get mean and variance from parents (if they exist)
+        # Get mean and variance_sq from parents (if they exist)
         if 'mean' in self.parents:
             self.mean = self.parents['mean'].value
-        if 'variance' in self.parents:
-            self.variance = self.parents['variance'].value
+        if 'variance_sq' in self.parents:
+            self.variance_sq = self.parents['variance_sq'].value
 
-        # Sample distribution for given mean and variance
-        self.value = stats.norm.rvs(self.mean, np.sqrt(self.variance))
+        # Sample distribution for given mean and variance_sq
+        self.value = stats.norm.rvs(self.mean, np.sqrt(np.sqrt(self.variance_sq)))
         return self.value
 
-    def probability_density(self, linspace):
-        return stats.norm.pdf(linspace, self.original_mean, 
-                np.sqrt(self.original_variance))
 
 
+class NormalNodePi(Node):
+    def __init__(self, node, value=None, fixed=False, name=None):
+        self.node = node
+        #self.node.add_child(self)
+        self.value = self.node.value ** np.pi
+    def current_likelihood(self):
+        likelihood = self.node.current_likelihood() + \
+                np.pi / (np.pi - 1) * np.log(self.node.value)
+        return likelihood
+    def sample_conditional(self):
+        self.value = self.node.value ** np.pi

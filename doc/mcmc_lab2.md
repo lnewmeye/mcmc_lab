@@ -656,10 +656,105 @@ Since there are far to many results to report, the following are a few plots tha
 
 ## Wacky Network Model
 
+The following plots show the burn-in, mixing, and posterior distributions for each of the nodes in the model. No nodes are set as observations for these plots.
+
+![Node A Burn, Mixing, and Histogram](../img/wacky/a_subplot.png)
+
+![Node B Burn, Mixing, and Histogram](../img/wacky/b_subplot.png)
+
+![Node C Burn, Mixing, and Histogram](../img/wacky/c_subplot.png)
+
+![Node D Burn, Mixing, and Histogram](../img/wacky/d_subplot.png)
+
+![Node E Burn, Mixing, and Histogram](../img/wacky/e_subplot.png)
+
+![Node F Burn, Mixing, and Histogram](../img/wacky/f_subplot.png)
+
+![Node G Burn, Mixing, and Histogram](../img/wacky/g_subplot.png)
+
+With G set to 5 as an observation the following plots were obtained
+
+![Node A Burn, Mixing, and Histogram](../img/wacky/a_evidence.png)
+
+![Node B Burn, Mixing, and Histogram](../img/wacky/b_evidence.png)
+
+![Node C Burn, Mixing, and Histogram](../img/wacky/c_evidence.png)
+
+![Node D Burn, Mixing, and Histogram](../img/wacky/d_evidence.png)
+
+![Node E Burn, Mixing, and Histogram](../img/wacky/e_evidence.png)
+
+![Node F Burn, Mixing, and Histogram](../img/wacky/f_evidence.png)
+
+![Node G Burn, Mixing, and Histogram](../img/wacky/g_evidence.png)
+
+
 ## My Model
 
-Results from my model for specific queries
+My model is shown below.
 
-## first students model
+![My Model](../img/part2/part2_model.png)
 
-## second students model
+I first chose to run the model without any evidence set. In the plots is the burn-in, mixing, and posterior histogram. As can be seen in the plots the network was run for 30,000 samples keeping every 100th sample with a burn of 3000 samples.
+
+![Node A Burn, Mixing, and Histogram](../img/part2/a_subplot.png)
+
+![Node B Burn, Mixing, and Histogram](../img/part2/b_subplot.png)
+
+![Node C Burn, Mixing, and Histogram](../img/part2/c_subplot.png)
+
+![Node D Burn, Mixing, and Histogram](../img/part2/d_subplot.png)
+
+![Node E Burn, Mixing, and Histogram](../img/part2/e_subplot.png)
+
+With D and E set to evidence nodes with value 1, the following plots result.
+
+![Node A Burn, Mixing, and Histogram](../img/part2/a_evidence.png)
+
+![Node B Burn, Mixing, and Histogram](../img/part2/b_evidence.png)
+
+![Node C Burn, Mixing, and Histogram](../img/part2/c_evidence.png)
+
+
+## James Jackson's Model
+
+James Jackson's model is as follows.
+
+![James Jackson's Model](../img/jackson/jackson_model.png)
+
+The following plots show the burn-in, mixing, and posterior histogram given E = 0.6. The network was run for 30,000 samples keeping every 100th sample with a burn of 3000 samples.
+
+![Node A Burn, Mixing, and Histogram](../img/jackson/a_subplot.png)
+
+![Node B Burn, Mixing, and Histogram](../img/jackson/b_subplot.png)
+
+![Node C Burn, Mixing, and Histogram](../img/jackson/c_subplot.png)
+
+![Node D Burn, Mixing, and Histogram](../img/jackson/d_subplot.png)
+
+## Katrina Pederson's Model
+
+Katrina's model is as follows.
+
+	A ~ Normal(mean=5, var=0.1)
+	B ~ Inverse Gamma(shape=5, scale=1/0.1)
+	C ~ Gamma(shape=A, scale=1/0.1)
+	D ~ Normal(mean=B, var=sqrt(C))
+	Y ~ Gamma(shape=D, scale=1/0.2)
+
+	We make 5 observations of Y:
+	[1.5, 2, 2.25, 1.75, 2]
+
+	Find the posterior distributions of A, C, and D.
+
+I modeled this by creating 5 nodes in Y, each fixed to one of the 5 observations. I ran my network for 30,000 samples keeping every 100th sample with a burn period of 3000 samples. The resulting plots for A, B, C, and D are below.
+
+![Node A Burn, Mixing, and Histogram](../img/pederson/a_subplot.png)
+
+![Node B Burn, Mixing, and Histogram](../img/pederson/b_subplot.png)
+
+![Node C Burn, Mixing, and Histogram](../img/pederson/c_subplot.png)
+
+![Node D Burn, Mixing, and Histogram](../img/pederson/d_subplot.png)
+
+

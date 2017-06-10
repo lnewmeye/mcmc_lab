@@ -1,4 +1,6 @@
 
+#from node import *
+import node as nd
 
 class ProbabilityNode(object):
 
@@ -11,7 +13,11 @@ class ProbabilityNode(object):
         self.probability = probability
 
     def get_probability(self):
-        return self.probability
+        if isinstance(self.probability, nd.Node):
+            probability = self.probability.value
+        else:
+            probability = self.probability
+        return probability
 
     def set_true(self, true):
         self.true = true
@@ -38,7 +44,6 @@ class BernoulliTree(object):
         (i.e. 2^n - 1). The nodes will be inserted as the first node followed
         by the true and false condition of each following node '''
 
-        # Add first node to tree and add to tail list
         node = ProbabilityNode(probabilities.pop(0))
         self.tree = node
         tail_nodes = [node]
@@ -67,4 +72,8 @@ class BernoulliTree(object):
             node = node.get_child(value)
 
         # Return probability of node at end of sequence
-        return node.probability
+        if isinstance(node.probability, nd.Node):
+            probability = node.probability.value
+        else:
+            probability = node.probability
+        return probability
