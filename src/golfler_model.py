@@ -14,7 +14,7 @@ from network import Network
 from proposal import NormalProposal
 
 # Set parameters for simulation
-nsamples = 50
+nsamples = 500
 
 # Create hyper nodes for network
 observation_var = InvGammaNode(83, 1/0.0014, NormalProposal(0.05))
@@ -64,7 +64,7 @@ for entry in data:
     observations.append(observation)
 
 # Create network and add nodes
-network = Network(10, 10) #TODO: Make sure to change this back to 200 or so
+network = Network(10, 100) #TODO: Make sure to change this back to 200 or so
 network.add_node(observation_var)
 network.add_node(golfer_var)
 network.add_node(tour_mean)
@@ -74,7 +74,7 @@ network.add_node(tour_var)
 network.add_nodes(observations)
 
 # Burn off and sample
-network.burn(500)
+network.burn(2000)
 network.sample(nsamples)
 
 # Get golfer data
@@ -101,7 +101,7 @@ out_file = open('../out/golfers.txt', 'w')
 i = 1
 for name, low, median, high in ability:
     print('%d: %s %f; 90%% interval: (%f, %f)' % (i, name, median, low, high))
-    out_file.write('%d: %s %f; 90%% interval: (%f, %f)\n' % (i, name, median, low, high))#TODO: Coment out by defaul
+    #out_file.write('%d: %s %f; 90%% interval: (%f, %f)\n' % (i, name, median, low, high))#TODO: Coment out by defaul
     i += 1
 
 # Plot hyper-parameter burn plots
@@ -126,7 +126,7 @@ ax4.plot(tour_var_burn)
 ax4.set_title('Tour Variance Burn')
 ax4.set_xlabel('Sample')
 ax4.set_ylabel('Sample Value')
-plt.savefig('../img/golfer/hyper_burn.png', dpi=40)#TODO: Coment out by defaul
+#plt.savefig('../img/golfer/hyper_burn.png', dpi=40)#TODO: Coment out by defaul
 
 # Plot hyper-parameter mixing plots
 observation_var_mixing = mixing[0]
@@ -150,7 +150,7 @@ ax4.plot(tour_var_mixing)
 ax4.set_title('Tour Variance Mixing')
 ax4.set_xlabel('Sample')
 ax4.set_ylabel('Sample Value')
-plt.savefig('../img/golfer/hyper_mixing.png', dpi=40)#TODO: Coment out by defaul
+#plt.savefig('../img/golfer/hyper_mixing.png', dpi=40)#TODO: Coment out by defaul
 
 # Plot Golfer mixed plot
 golfer_burn = np.array([burn[4], burn[4+155], burn[4+604-1]]).T
@@ -172,7 +172,7 @@ ax3.plot(golfer_range, golfer_density)
 ax3.set_title('Density/Histogram for 3 Golfers')
 ax3.set_xlabel('Golfer Average')
 ax3.set_ylabel('Density')
-plt.savefig('../img/golfer/golfer_subplot.png', dpi=40)#TODO: Coment out by defaul
+#plt.savefig('../img/golfer/golfer_subplot.png', dpi=40)#TODO: Coment out by defaul
 
 # Plot tournamnt mixed plot
 tour_burn = np.array([burn[4+604], burn[4+604+35], burn[4+604+40-2]]).T
@@ -191,4 +191,4 @@ ax3.hist(tour_samples, bins=15, normed=True)
 ax3.set_title('Histogram for 3 Tournaments')
 ax3.set_xlabel('Tour Average')
 ax3.set_ylabel('Density')
-plt.savefig('../img/golfer/tour_subplot.png', dpi=40)#TODO: Coment out by defaul
+#plt.savefig('../img/golfer/tour_subplot.png', dpi=40)#TODO: Coment out by defaul
