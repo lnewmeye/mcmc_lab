@@ -38,76 +38,62 @@ network.add_node(prior_variance)
 network.add_nodes(observations)
 
 # Burn off samples
-network.burn(100)
-network.sample(200)
+network.burn(300)
+network.sample(500)
 
 # Retrieve data from network
 burn = np.array(network.burn_history)
 mixing = np.array(network.sample_history)
 samples = np.array(network.samples)
 
-# Plot burn in of prior_mean
-mean_burn = burn[:,0]
-plt.plot(mean_burn, label='Prior Mean Burn')
-plt.title('Prior Mean Burn History')
-plt.xlabel('Sample')
-plt.ylabel('Sample Value')
-plt.savefig('../img/faculty/prior_mean_burn.png')
-plt.show()
-plt.clf()
-
-# Plot mixing of prior_mean
-mean_mixing = mixing[:,0]
-plt.plot(mean_mixing, label='Prior Mean Mixing')
-plt.title('Prior Mean Mixing')
-plt.xlabel('Sample')
-plt.ylabel('Sample Value')
-plt.savefig('../img/faculty/prior_mean_mixing.png')
-plt.show()
-plt.clf()
-
-# Plot burn in of prior_variance
-var_burn = burn[:,1]
-plt.plot(var_burn, label='Prior Variance Burn')
-plt.title('Prior Variance Burn History')
-plt.xlabel('Sample')
-plt.ylabel('Sample Value')
-plt.savefig('../img/faculty/prior_variance_burn.png')
-plt.show()
-plt.clf()
-
-# Plot mixing of prior_variance
-var_mixing = mixing[:,1]
-plt.plot(var_mixing, label='Prior Variance Mixing')
-plt.title('Prior Variance Mixing')
-plt.xlabel('Sample')
-plt.ylabel('Sample Value')
-plt.savefig('../img/faculty/prior_variance_mixing.png')
-plt.show()
-plt.clf()
-
-# Plot histogram for prior_mean
+# Plot histogram for prior_mean and prior_varinace
 mean_samples = samples[:,0]
-plt.hist(mean_samples, bins=15, normed=True)
-x_axis = np.arange(4, 6, 0.01)
-y_axis = prior_mean.probability_density(x_axis)
-plt.plot(x_axis, y_axis)
-plt.show()
-
-# Plot histogram for prior_variance
+mean_range = np.arange(4, 6, 0.01)
 var_samples = samples[:,1]
-plt.hist(var_samples, bins=15, normed=True)
-x_axis = np.arange(0, 1, 0.005)
-y_axis = prior_variance.probability_density(x_axis)
-plt.plot(x_axis, y_axis)
-plt.show()
+var_range = np.arange(0, 1, 0.005)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18,6))
+ax1.hist(mean_samples, bins=15, normed=True)
+ax1.plot(mean_range, prior_mean.probability_density(mean_range))
+ax1.set_title('Prior Mean Probability Density')
+ax1.set_xlabel('Rating')
+ax1.set_ylabel('Density')
+ax2.hist(var_samples, bins=15, normed=True)
+ax2.plot(var_range, prior_variance.probability_density(var_range))
+ax2.set_title('Prior Variance Probability Density')
+ax2.set_xlabel('Rating Variance')
+ax2.set_ylabel('Density')
+#plt.savefig('../img/faculty/histogram.png', dpi=40)
+
+# Plot birn-in for both prior_mean and prior_variance
+mean_burn = burn[:,0]
+var_burn = burn[:,1]
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18,6))
+ax1.plot(mean_burn)
+ax1.set_title('Prior Mean Burn-in')
+ax1.set_xlabel('Sample')
+ax1.set_ylabel('Sample Value')
+ax2.plot(var_burn)
+ax2.set_title('Prior Variance Burn-in')
+ax2.set_xlabel('Sample')
+ax2.set_ylabel('Sample Value')
+#plt.savefig('../img/faculty/burn-in.png', dpi=40)
+
+# Plot mixing plot for both prior_mean and prior_variance
+mean_mixing = mixing[:,0]
+var_mixing = mixing[:,1]
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18,6))
+ax1.plot(mean_mixing)
+ax1.set_title('Prior Mean Mixing')
+ax1.set_xlabel('Sample')
+ax1.set_ylabel('Sample Value')
+ax2.plot(var_mixing)
+ax2.set_title('Prior Variance Mixing')
+ax2.set_xlabel('Sample')
+ax2.set_ylabel('Sample Value')
+#plt.savefig('../img/faculty/mixing.png', dpi=40)
 
 # Print statistics
 print('Average of variance node:', np.mean(var_samples))
 print('Average of mean node:', np.mean(mean_samples))
 print('Variance of data:', np.var(data))
 print('Mean of data:', np.mean(data))
-
-# Return estimates
-#prior_mean_estimate = network.estimate_mean(0)
-#print('prior_mean_estimate =', prior_mean_estimate)

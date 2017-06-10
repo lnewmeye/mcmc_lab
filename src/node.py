@@ -32,6 +32,9 @@ class Node(object):
             # Set value to value provided to init function
             self.value == value
 
+        # Save value to value history
+        #self.history = [value]
+
     def set_fixed(self, value):
         self.value = value
         self.fixed = True
@@ -101,13 +104,16 @@ class Node(object):
         #print('Alpha:', alpha)
         #print('self.value =', self.value)
         #print('previous_value =', previous_value)
+
+        #self.history.append(self.value)
+
         return self.value
 
 
 
 class NormalNode(Node):
 
-    def __init__(self, mean, variance, proposal, value=None, fixed=False):
+    def __init__(self, mean, variance, proposal, value=None, fixed=False, name=None):
         ''' Initialize object given mean and variance nodes or numbers '''
 
         # Create dictionary for parents
@@ -118,7 +124,7 @@ class NormalNode(Node):
             self.parents['mean'] = mean
         else:
             self.mean = mean
-        self.original_mean = mean
+        self.original_variance = variance
 
         # Check if variance is object or value and set appropriately
         if isinstance(variance, Node):
@@ -129,6 +135,7 @@ class NormalNode(Node):
 
         # Save proposal distribution to object
         self.proposal = proposal
+        self.name = name
 
         # Call super node's init function
         super(NormalNode, self).__init__(value, fixed)
@@ -638,5 +645,80 @@ class NormalNodeSum(Node):
     def probability_density(self, linspace):
         return stats.norm.pdf(linspace, self.original_mean1 + \
                 self.original_mean2, np.sqrt(self.original_variance))
+
+
+class NormalNodePi(Node):
+
+    def __init__(self, mean, variance, proposal, value=None, fixed=False, name=None):
+        ''' Initialize object given mean and variance nodes or numbers '''
+
+        # Create dictionary for parents
+        self.parents = {}
+
+        # Check if mean is object or value and set appropriately
+        if isinstance(mean, Node):
+            self.parents['mean'] = mean
+        else:
+            self.mean = mean
+        self.original_variance = variance
+
+        # Check if variance is object or value and set appropriately
+        if isinstance(variance, Node):
+            self.parents['variance'] = variance
+        else:
+            self.variance = variance
+        self.original_variance = variance
+
+        # Save proposal distribution to object
+        self.proposal = proposal
+        self.name = name
+
+        # Call super node's init function
+        super(NormalNode, self).__init__(value, fixed)
+
+    def current_likelihood(self):
+
+        # Get mean and variance from parents (if they exist)
+        if 'mean' in self.parents:
+            self.mean = self.parents['mean'].value
+        if 'variance' in self.parents:
+            self.variance = self.parents['variance'].value
+
+        likelihood = -np.pi/2 * (np.log(self.variance) + \
+                (self.value - self.mean)**2 / self.variance)
+        return likelihood
+
+    def current_probability(self):
+
+        # Get mean and variance from parents (if they exist)
+        if 'mean' in self.parents:
+            self.mean = self.parents['mean'].value
+        if 'variance' in self.parents:
+            self.variance = self.parents['variance'].value
+
+        # Find probability for current value with current mean and variance
+        probability = stats.norm.pdf(self.value, self.mean, 
+                np.sqrt(self.variance))
+        return probability
+
+    def sample_distribution(self):
+
+        # If node set to fixed, return value and exit
+        if self.fixed == True:
+            return self.value
+
+        # Get mean and variance from parents (if they exist)
+        if 'mean' in self.parents:
+            self.mean = self.parents['mean'].value
+        if 'variance' in self.parents:
+            self.variance = self.parents['variance'].value
+
+        # Sample distribution for given mean and variance
+        self.value = stats.norm.rvs(self.mean, np.sqrt(self.variance))
+        return self.value
+
+    def probability_density(self, linspace):
+        return stats.norm.pdf(linspace, self.original_mean, 
+                np.sqrt(self.original_variance))
 
 
