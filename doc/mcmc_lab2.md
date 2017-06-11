@@ -15,11 +15,9 @@ The code is structured into several classes. The main class is the Network class
 
 Worth mentioning is that the BernoulliNode class, although inheriting from the Node class, varies significantly. As parameters to the BernoulliNode are a list of parents and a list of probabilities. The probabilities are entered into a tree structure (implemented in the BernoulliTree and ProbabilityNode classes). Thus, the BernoulliNode class can have any number of parents. When the node's sample() or likelihood() function is called the node requests the current value of its list of parents to traverse the tree and either returns the probability or a sample of that probability.
 
-TODO: describe the proposal classes
+One class also worth mentioning is my proposal class. This class is designed to create proposal functions used for the Metropolis algorithm. The class is given a distribution parameter and a variance and is passed as a parameter to the network node being created. When the Node class's sample_conditional() function is called, it calls a sample() function for its proposal object which provides a value for Metropolis.
 
-The code is backwards compatible with the previous lab as well. All values produced match those produced previously.
-
-The following are the results for several different models on which my code has been tested.
+The code is backwards compatible with the previous lab as well. All values produced match those produced previously. The following are the results for several different models on which my code has been tested.
 
 ## Faculty Evaluations Model
 
@@ -37,7 +35,7 @@ The final figure shows the mixing plots of both mean and variance nodes. The nod
 
 ## Professional Golfers Model
 
-The golfer model is run for 50 samples keeping every 10th sample. The burn in runs for xxxx samples. The following are the results from the simulation in the format described on Learning Suite.
+The golfer model is run for 50,000 samples keeping every 100th sample. The burn-in runs for 1000 samples. The following are the results from the simulation in the format described on Learning Suite.
 
 	1: VijaySingh -3.870369; 90% interval: (-4.533923, -3.284346)
 	2: TigerWoods -3.643099; 90% interval: (-4.373574, -3.055726)
@@ -644,7 +642,7 @@ The golfer model is run for 50 samples keeping every 10th sample. The burn in ru
 	603: ArnoldPalmer 5.906160; 90% interval: (4.175071, 7.775270)
 	604: TimTims 8.005877; 90% interval: (5.403571, 10.580965)
 
-Since there are far to many results to report, the following are a few plots that demonstrate that the model is reaching stead-state and is mixing well. The burn period runs for 500 samples
+Since there are far to many results to report, the following are a few plots that demonstrate that the model is reaching stead-state and is mixing well.
 
 ![Hyper Parameter Burn-in Plots](../img/golfer/hyper_burn.png)
 
@@ -688,6 +686,7 @@ With G set to 5 as an observation the following plots were obtained
 
 ![Node G Burn, Mixing, and Histogram](../img/wacky/g_evidence.png)
 
+Both tests were run with a burn-in of 10,000 samples and sampling of 20,000 keeping every 100th sample.
 
 ## My Model
 

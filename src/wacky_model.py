@@ -13,19 +13,18 @@ from network import *
 from proposal import *
 
 # Set parameters for for 
-nburn = 10000
-nsamples = 300
-ndump = 20
+nburn = 100000
+nsamples = 2000
+ndump = 100
 
 # Create nodes in network
-A = NormalNode(20, 1, NormalProposal(1.3))
-APi = NormalNodePi(A)
+A = NormalNode(20, 1, NormalProposal(0.1))
 E = BetaNode(1, 1, NormalProposal(0.1))
-B = GammaNode(APi, 7, NormalProposal(0.5))
+B = GammaPowPiNode(A, 7, NormalProposal(5000.0))
 D = BetaNode(A, E, NormalProposal(0.03))
 C = BernoulliNode([], [D])
 F = PoissonNode(D, DiscreteProposal(1.2))
-G = NormalNode(E, F, NormalProposal(10000))
+G = NormalNode(E, F, NormalProposal(10))
 
 # Add children to parents
 A.add_children([B, D])
@@ -35,7 +34,7 @@ F.add_child(G)
 
 # Create network and add nodes
 network = Network(10, ndump)
-network.add_nodes([A, APi, E, B, D, C, F, G])
+network.add_nodes([A, E, B, D, C, F, G])
 
 # Burn and sample
 network.burn(nburn)
@@ -66,9 +65,9 @@ ax3.set_ylabel('Density')
 plt.savefig('../img/wacky/a_subplot.png', dpi=40)
 
 # Plot burn, mixing, and data for E
-plot_burn = np.array(burn[2])
-plot_mixing = np.array(mixing[2])
-plot_samples = np.array(samples[2])
+plot_burn = np.array(burn[1])
+plot_mixing = np.array(mixing[1])
+plot_samples = np.array(samples[1])
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18,6))
 ax1.plot(plot_burn)
 ax1.set_title('Burn for E')
@@ -85,9 +84,9 @@ ax3.set_ylabel('Density')
 plt.savefig('../img/wacky/e_subplot.png', dpi=40)
 
 # Plot burn, mixing, and data for B
-plot_burn = np.array(burn[3])
-plot_mixing = np.array(mixing[3])
-plot_samples = np.array(samples[3])
+plot_burn = np.array(burn[2])
+plot_mixing = np.array(mixing[2])
+plot_samples = np.array(samples[2])
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18,6))
 ax1.plot(plot_burn)
 ax1.set_title('Burn for B')
@@ -104,9 +103,9 @@ ax3.set_ylabel('Density')
 plt.savefig('../img/wacky/b_subplot.png', dpi=40)
 
 # Plot burn, mixing, and data for D
-plot_burn = np.array(burn[4])
-plot_mixing = np.array(mixing[4])
-plot_samples = np.array(samples[4])
+plot_burn = np.array(burn[3])
+plot_mixing = np.array(mixing[3])
+plot_samples = np.array(samples[3])
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18,6))
 ax1.plot(plot_burn)
 ax1.set_title('Burn for D')
@@ -123,9 +122,9 @@ ax3.set_ylabel('Density')
 plt.savefig('../img/wacky/d_subplot.png', dpi=40)
 
 # Plot burn, mixing, and data for C
-plot_burn = np.array(burn[5])
-plot_mixing = np.array(mixing[5])
-plot_samples = np.array(samples[5])
+plot_burn = np.array(burn[4])
+plot_mixing = np.array(mixing[4])
+plot_samples = np.array(samples[4])
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18,6))
 ax1.plot(plot_burn)
 ax1.set_title('Burn for C')
@@ -142,9 +141,9 @@ ax3.set_ylabel('Density')
 plt.savefig('../img/wacky/c_subplot.png', dpi=40)
 
 # Plot burn, mixing, and data for F
-plot_burn = np.array(burn[6])
-plot_mixing = np.array(mixing[6])
-plot_samples = np.array(samples[6])
+plot_burn = np.array(burn[5])
+plot_mixing = np.array(mixing[5])
+plot_samples = np.array(samples[5])
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18,6))
 ax1.plot(plot_burn)
 ax1.set_title('Burn for F')
@@ -161,9 +160,9 @@ ax3.set_ylabel('Density')
 plt.savefig('../img/wacky/f_subplot.png', dpi=40)
 
 # Plot burn, mixing, and data for G
-plot_burn = np.array(burn[7])
-plot_mixing = np.array(mixing[7])
-plot_samples = np.array(samples[7])
+plot_burn = np.array(burn[6])
+plot_mixing = np.array(mixing[6])
+plot_samples = np.array(samples[6])
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18,6))
 ax1.plot(plot_burn)
 ax1.set_title('Burn for G')
@@ -211,9 +210,9 @@ ax3.set_ylabel('Density')
 plt.savefig('../img/wacky/a_evidence.png', dpi=40)
 
 # Plot burn, mixing, and data for E
-plot_burn = np.array(burn[2])
-plot_mixing = np.array(mixing[2])
-plot_samples = np.array(samples[2])
+plot_burn = np.array(burn[1])
+plot_mixing = np.array(mixing[1])
+plot_samples = np.array(samples[1])
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18,6))
 ax1.plot(plot_burn)
 ax1.set_title('Burn for E')
@@ -230,9 +229,9 @@ ax3.set_ylabel('Density')
 plt.savefig('../img/wacky/e_evidence.png', dpi=40)
 
 # Plot burn, mixing, and data for B
-plot_burn = np.array(burn[3])
-plot_mixing = np.array(mixing[3])
-plot_samples = np.array(samples[3])
+plot_burn = np.array(burn[2])
+plot_mixing = np.array(mixing[2])
+plot_samples = np.array(samples[2])
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18,6))
 ax1.plot(plot_burn)
 ax1.set_title('Burn for B')
@@ -249,9 +248,9 @@ ax3.set_ylabel('Density')
 plt.savefig('../img/wacky/b_evidence.png', dpi=40)
 
 # Plot burn, mixing, and data for D
-plot_burn = np.array(burn[4])
-plot_mixing = np.array(mixing[4])
-plot_samples = np.array(samples[4])
+plot_burn = np.array(burn[3])
+plot_mixing = np.array(mixing[3])
+plot_samples = np.array(samples[3])
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18,6))
 ax1.plot(plot_burn)
 ax1.set_title('Burn for D')
@@ -268,9 +267,9 @@ ax3.set_ylabel('Density')
 plt.savefig('../img/wacky/d_evidence.png', dpi=40)
 
 # Plot burn, mixing, and data for C
-plot_burn = np.array(burn[5])
-plot_mixing = np.array(mixing[5])
-plot_samples = np.array(samples[5])
+plot_burn = np.array(burn[4])
+plot_mixing = np.array(mixing[4])
+plot_samples = np.array(samples[4])
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18,6))
 ax1.plot(plot_burn)
 ax1.set_title('Burn for C')
@@ -287,9 +286,9 @@ ax3.set_ylabel('Density')
 plt.savefig('../img/wacky/c_evidence.png', dpi=40)
 
 # Plot burn, mixing, and data for F
-plot_burn = np.array(burn[6])
-plot_mixing = np.array(mixing[6])
-plot_samples = np.array(samples[6])
+plot_burn = np.array(burn[5])
+plot_mixing = np.array(mixing[5])
+plot_samples = np.array(samples[5])
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18,6))
 ax1.plot(plot_burn)
 ax1.set_title('Burn for F')
@@ -306,9 +305,9 @@ ax3.set_ylabel('Density')
 plt.savefig('../img/wacky/f_evidence.png', dpi=40)
 
 # Plot burn, mixing, and data for G
-plot_burn = np.array(burn[7])
-plot_mixing = np.array(mixing[7])
-plot_samples = np.array(samples[7])
+plot_burn = np.array(burn[6])
+plot_mixing = np.array(mixing[6])
+plot_samples = np.array(samples[6])
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18,6))
 ax1.plot(plot_burn)
 ax1.set_title('Burn for G')

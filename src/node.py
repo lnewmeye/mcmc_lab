@@ -59,33 +59,25 @@ class Node(object):
         self.likelihood = self.current_likelihood() #TODO: Remove this and adjust to user previous value
         for child in self.children:
             self.likelihood += child.current_likelihood()
-        #print('self.likelihood =', self.likelihood)
-        #self.probability = self.current_probability() #TODO: Remove this and adjust to user previous value
-        #for child in self.children:
-            #self.probability += child.current_probability()
-        #print('self.probability =', self.probability)
+            #if not np.isfinite(self.likelihood):
+                #print('not finite')
 
         # Get proposed value from proposal distribution and find probability
         previous_value = self.value
         self.value = self.proposal.sample(previous_value)
-        #new_probability = self.current_probability()
-        #if new_probability < 0.0:
-            #for child in self.childern:
-                #new_probability *= child.current_probability()
         new_likelihood = self.current_likelihood()
+
         if np.isfinite(new_likelihood):
 
             # Iterate through children and compute running product
             for child in self.children:
-                #print('\tnew_acceptance =', new_likelihood)
                 new_likelihood += child.current_likelihood()
-            #print('new_probability =', new_probability)
-            #print('new_likelihood =', new_likelihood)
+                #if not np.isfinite(new_likelihood):
+                    #print('not finite')
+                    #self.value = previous_value
+                    #return self.value
 
-            #print('difference =', new_likelihood - self.likelihood)
             alpha = np.exp(new_likelihood - self.likelihood)
-            #print('old_alpha =', new_probability / self.probability)
-            #print('alpha =', alpha)
             self.likelihood = new_likelihood
 
             # Find new value based on Metropolis algorithm
@@ -94,18 +86,7 @@ class Node(object):
                     self.value = previous_value
 
         else:
-            #print('value not finite:', new_likelihood)
             self.value = previous_value
-
-        # Compute likelihood ratio (alpha) from new and previous proportions
-        #print('new_likelihood =', new_likelihood)
-        #print('self.likelihood =', self.likelihood)
-
-        #print('Alpha:', alpha)
-        #print('self.value =', self.value)
-        #print('previous_value =', previous_value)
-
-        #self.history.append(self.value)
 
         return self.value
 
@@ -125,7 +106,7 @@ class NormalNode(Node):
         else:
             self.mean = mean
         self.original_mean = mean
-
+	
         # Check if variance is object or value and set appropriately
         if isinstance(variance, Node):
             self.parents['variance'] = variance
@@ -152,7 +133,7 @@ class NormalNode(Node):
             likelihood = -1/2 * (np.log(self.variance) + \
                     (self.value - self.mean)**2 / self.variance)
         else:
-            likelihood = self.value == self.mean
+            return np.nan
         return likelihood
 
     def current_probability(self):
@@ -223,10 +204,7 @@ class GammaNode(Node):
 
         # Get alpha and beta from parents (if they exist)
         if 'alpha' in self.parents:
-            if isinstance(self.parents['alpha'], NormalNodePi):
-                self.alpha = self.parents['alpha'].node.value
-            else:
-                self.alpha = self.parents['alpha'].value
+            self.alpha = self.parents['alpha'].value
         if 'beta' in self.parents:
             self.beta = self.parents['beta'].value
 
@@ -736,14 +714,77 @@ class NormalSqVarNode(Node):
 
 
 
-class NormalNodePi(Node):
-    def __init__(self, node, value=None, fixed=False, name=None):
-        self.node = node
-        #self.node.add_child(self)
-        self.value = self.node.value ** np.pi
+class GammaPowPiNode(Node):
+
+    def __init__(self, pirootalpha, beta, proposal, value=None, fixed=False):
+ 
+        # Create dictionary for parents
+        self.parents = {}
+
+        # Check if pirootalpha is object or value and set appropriately
+        if isinstance(pirootalpha, Node):
+            self.parents['pirootalpha'] = pirootalpha
+        else:
+            self.pirootalpha = pirootalpha
+        self.original_alpha = pirootalpha
+
+        # Check if beta is object or value and set appropriately
+        if isinstance(beta, Node):
+            self.parents['beta'] = beta
+        else:
+            self.beta = beta
+        self.original_beta = beta
+
+        # Save proposal distribution to object
+        self.proposal = proposal
+
+        # Call super node's init function
+        super(GammaPowPiNode, self).__init__(value, fixed)
+
     def current_likelihood(self):
-        likelihood = self.node.current_likelihood() + \
-                np.pi / (np.pi - 1) * np.log(self.node.value)
+
+        # Get pirootalpha and beta from parents (if they exist)
+        if 'pirootalpha' in self.parents:
+            self.pirootalpha = self.parents['pirootalpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Find probability for current value with current mean and variance
+        likelihood = (self.pirootalpha ** np.pi) * np.log(self.beta) - gammaln(self.pirootalpha**np.pi) + \
+                (self.pirootalpha**np.pi - 1) * np.log(self.value) - self.beta * self.value
         return likelihood
-    def sample_conditional(self):
-        self.value = self.node.value ** np.pi
+
+    def current_probability(self):
+
+        # Get pirootalpha and beta from parents (if they exist)
+        if 'pirootalpha' in self.parents:
+            self.pirootalpha = self.parents['pirootalpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Find probability for current value with current mean and variance
+        probability = stats.gamma.pdf(self.value, self.pirootalpha**np.pi,
+                scale=1/self.beta)
+        return probability
+
+    def sample_distribution(self):
+
+        # If node set to fixed, return value and exit
+        if self.fixed == True:
+            return self.value
+
+        # Get pirootalpha and beta from parents (if they exist)
+        if 'pirootalpha' in self.parents:
+            self.pirootalpha = self.parents['pirootalpha'].value
+        if 'beta' in self.parents:
+            self.beta = self.parents['beta'].value
+
+        # Sample distribution for given mean and variance
+        self.value = stats.gamma.rvs(self.pirootalpha**np.pi, scale=1/self.beta)
+        return self.value
+
+    def probability_density(self, linspace):
+        return stats.gamma.pdf(linspace, self.original_alpha, 
+                scale=1/self.original_beta)
+
+
