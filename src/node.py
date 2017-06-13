@@ -106,7 +106,7 @@ class NormalNode(Node):
         else:
             self.mean = mean
         self.original_mean = mean
-	
+
         # Check if variance is object or value and set appropriately
         if isinstance(variance, Node):
             self.parents['variance'] = variance
@@ -170,6 +170,19 @@ class NormalNode(Node):
     def probability_density(self, linspace):
         return stats.norm.pdf(linspace, self.original_mean, 
                 np.sqrt(self.original_variance))
+
+    def set_mean(self, mean):
+        if isinstance(mean, Node):
+            self.parents['mean'] = mean
+        else:
+            self.mean = mean
+
+    def set_variance(self, variance):
+        if isinstance(variance, Node):
+            self.parents['variance'] = variance
+        else:
+            self.variance = variance
+
 
 
 
@@ -321,6 +334,17 @@ class InvGammaNode(Node):
         return stats.invgamma.pdf(linspace, self.original_alpha, 
                 scale=self.original_beta)
 
+    def set_alpha(self, alpha):
+        if isinstance(alpha, Node):
+            self.parents['alpha'] = alpha
+        else:
+            self.alpha = alpha
+
+    def set_beta(self, beta):
+        if isinstance(beta, Node):
+            self.parents['beta'] = beta
+        else:
+            self.beta = beta
 
 
 
