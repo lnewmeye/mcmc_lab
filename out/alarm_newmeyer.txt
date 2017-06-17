@@ -1,0 +1,10 @@
+Estimated Alarm TT: 0.892901113074
+Estimated Alarm TF: 0.699469399733
+Estimated Alarm FT: 0.428199047096
+Estimated Alarm FF: 0.224789691562
+Estimated Burgulary: 0.626290373857
+Estimated Earthquake: 0.285673299456
+Estimated John T: 0.29314653099
+Estimated John F: 0.158424366471
+Estimated Mary T: 0.749769837168
+Estimated Mary F: 0.661820912187

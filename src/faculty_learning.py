@@ -107,13 +107,17 @@ print('Mean of data:', np.mean(data))
 # Plot joint distribution for prior_mean and prior_varinace
 fig, (ax) = plt.subplots(1, 1, figsize=(9,6))
 ax.hist2d(mean_samples, var_samples, bins=40, norm=LogNorm())
-plt.savefig('../img/learning/faculty_joint_none.png', dpi=40)
-
+ax.set_xlabel('Mean')
+ax.set_ylabel('Variance')
+ax.set_title('Mean vs. Variance')
+ax.set_xlim(5.2, 6.2)
+ax.set_ylim(0.1, 0.6)
+#plt.savefig('../img/learning/faculty_joint_none.png', dpi=40)
 
 
 # Start and run network with additional hyper-parameter
-hyper_mean_mean = NormalNode(5, 1.5, NormalProposal(0.01))
-#hyper_mean_mean = NormalNode(18, 1.5, NormalProposal(0.01))
+#hyper_mean_mean = NormalNode(5, 1.5, NormalProposal(0.01))
+hyper_mean_mean = NormalNode(18, 1.5, NormalProposal(0.01))
 prior_mean.set_mean(hyper_mean_mean)
 hyper_mean_mean.add_child(prior_mean)
 network.add_node(hyper_mean_mean)
@@ -132,8 +136,8 @@ var_samples1 = samples1[:,1]
 
 
 # Start and run network with additional hyper-parameter
-hyper_mean_var = InvGammaNode(2, 1/9, NormalProposal(0.005))
-#hyper_mean_var = InvGammaNode(4, 1/19, NormalProposal(0.01))
+#hyper_mean_var = InvGammaNode(2, 1/9, NormalProposal(0.005))
+hyper_mean_var = InvGammaNode(4, 1/19, NormalProposal(0.01))
 prior_mean.set_variance(hyper_mean_var)
 hyper_mean_var.add_child(prior_mean)
 network.add_node(hyper_mean_var)
@@ -152,8 +156,8 @@ var_samples2 = samples2[:,1]
 
 
 # Start and run network with additional hyper-parameter
-hyper_var_alpha = GammaNode(3, 3/11, NormalProposal(0.4))
-#hyper_var_alpha = GammaNode(8, 1/21, NormalProposal(0.4))
+#hyper_var_alpha = GammaNode(3, 3/11, NormalProposal(0.4))
+hyper_var_alpha = GammaNode(8, 1/21, NormalProposal(0.4))
 prior_variance.set_alpha(hyper_var_alpha)
 hyper_var_alpha.add_child(prior_variance)
 network.add_node(hyper_var_alpha)
@@ -172,8 +176,8 @@ var_samples3 = samples3[:,1]
 
 
 # Start and run network with additional hyper-parameter
-hyper_var_beta = GammaNode(1, 1/2.5, NormalProposal(0.1))
-#hyper_var_beta = GammaNode(2, 1/5.5, NormalProposal(0.1))
+#hyper_var_beta = GammaNode(1, 1/2.5, NormalProposal(0.1))
+hyper_var_beta = GammaNode(2, 1/5.5, NormalProposal(0.1))
 prior_variance.set_beta(hyper_var_beta)
 hyper_var_beta.add_child(prior_variance)
 network.add_node(hyper_var_beta)
@@ -195,19 +199,31 @@ var_samples4 = samples4[1]
 # Plot joint distribution with hyper-parameters included
 fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=(18,6))
 ax1.hist2d(mean_samples1, var_samples1, bins=40, norm=LogNorm())
-ax1.set_xlim(5.0, 6.5)
+ax1.set_xlim(5.2, 6.2)
 ax1.set_ylim(0.1, 0.6)
+ax1.set_xlabel('Mean')
+ax1.set_ylabel('Variance')
+ax1.set_title('One Hyper')
 ax2.hist2d(mean_samples2, var_samples2, bins=40, norm=LogNorm())
-ax2.set_xlim(5.0, 6.5)
+ax2.set_xlim(5.2, 6.2)
 ax2.set_ylim(0.1, 0.6)
+ax2.set_xlabel('Mean')
+ax2.set_ylabel('Variance')
+ax2.set_title('Two Hyper')
 ax3.hist2d(mean_samples3, var_samples3, bins=40, norm=LogNorm())
-ax3.set_xlim(5.0, 6.5)
+ax3.set_xlim(5.2, 6.2)
 ax3.set_ylim(0.1, 0.6)
+ax3.set_xlabel('Mean')
+ax3.set_ylabel('Variance')
+ax3.set_title('Three Hyper')
 ax4.hist2d(mean_samples4, var_samples4, bins=40, norm=LogNorm())
-ax4.set_xlim(5.0, 6.5)
+ax4.set_xlim(5.2, 6.2)
 ax4.set_ylim(0.1, 0.6)
-plt.savefig('../img/learning/faculty_joint_hyper.png', dpi=40)
-#plt.savefig('../img/learning/faculty_joint_off.png', dpi=40)
+ax4.set_xlabel('Mean')
+ax4.set_ylabel('Variance')
+ax4.set_title('Four Hyper')
+#plt.savefig('../img/learning/faculty_joint_hyper.png', dpi=40)
+plt.savefig('../img/learning/faculty_joint_off.png', dpi=40)
 
 # Analyze the mixing for the hyper-pparameters
 fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=(18,6))
