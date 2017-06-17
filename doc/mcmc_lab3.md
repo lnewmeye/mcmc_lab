@@ -80,17 +80,17 @@ Using the same scenario as the previous section, the following are the alarm nod
 
 ![20 Data Nodes](../img/learning/alarm_nodes_20.png)
 
-![100 Data Nodes](../img/learning/alarm_hyper_100.png)
+![100 Data Nodes](../img/learning/alarm_nodes_100.png)
 
-![1000 Data Nodes](../img/learning/alarm_nodes_1000.png)
+![1000 Data Nodes](../img/learning/alarm_nodes_500.png)
 
 Scince these observed nodes are all taken from the same child node, The following plots are from the same simulations but show various a few other samplings. The plots show the hyper-parameters of burglary, John given alarm false, and Mary given alarm true.
 
 ![20 Data Nodes Various](../img/learning/alarm_nodes_various_20.png)
 
-![100 Data Nodes Various](../img/learning/alarm_hyper_various_100.png)
+![100 Data Nodes Various](../img/learning/alarm_nodes_various_100.png)
 
-![1000 Data Nodes Various](../img/learning/alarm_nodes_various_1000.png)
+![1000 Data Nodes Various](../img/learning/alarm_nodes_various_500.png)
 
 ~~Observations from this scenario~~
 
