@@ -76,13 +76,13 @@ Although this is only a case study and in no way a proof, from my observation th
 
 ### Amounts of Learning Data
 
-Using the same scenario as the previous section, the following are the alarm node hyper-parameters with three different amount of data: 20 data nodes, 100 data nodes, and 1000 data nodes. All hyper-parameters were included in this scenario.
+Using the same scenario as the previous section, the following are the alarm node hyper-parameters with three different amount of data: 20 data nodes, 100 data nodes, and 500 data nodes. All hyper-parameters were included in this scenario.
 
 ![20 Data Nodes](../img/learning/alarm_nodes_20.png)
 
 ![100 Data Nodes](../img/learning/alarm_nodes_100.png)
 
-![1000 Data Nodes](../img/learning/alarm_nodes_500.png)
+![500 Data Nodes](../img/learning/alarm_nodes_500.png)
 
 Scince these observed nodes are all taken from the same child node, The following plots are from the same simulations but show various a few other samplings. The plots show the hyper-parameters of burglary, John given alarm false, and Mary given alarm true.
 
@@ -90,19 +90,19 @@ Scince these observed nodes are all taken from the same child node, The followin
 
 ![100 Data Nodes Various](../img/learning/alarm_nodes_various_100.png)
 
-![1000 Data Nodes Various](../img/learning/alarm_nodes_various_500.png)
+![500 Data Nodes Various](../img/learning/alarm_nodes_various_500.png)
 
 ~~Observations from this scenario~~
 
 ### Original Parameter Learning
 
-As a hypothesis, I would propose that the previous model will be more difficult to learn because of the lack of occurances of burglary and earthquake. Thus, more data nodes will be required to achieve a good simulation. Becaue of this, I am using the same three scenarios from the last section. That is, I have run the simulation for 20, 1000, and 1000 data nodes to see how the amount of data affects the result.
+As a hypothesis, I would propose that the previous model will be more difficult to learn because of the lack of occurances of burglary and earthquake. Thus, more data nodes will be required to achieve a good simulation. Becaue of this, I am using the same three scenarios from the last section. That is, I have run the simulation for 20, 100, and 500 data nodes to see how the amount of data affects the result.
 
 ![20 Data Original](../img/learning/alarm_original_20.png)
 
 ![100 Data Original](../img/learning/alarm_original_100.png)
 
-![1000 Data Original](../img/learning/alarm_original_1000.png)
+![500 Data Original](../img/learning/alarm_original_500.png)
 
 As also in the previous section, the following are the plots for hyper-parmeters burglary, John given alarm false, and Mary given alarm true.
 
@@ -110,7 +110,7 @@ As also in the previous section, the following are the plots for hyper-parmeters
 
 ![100 Data Original Various](../img/learning/alarm_original_various_100.png)
 
-![1000 Data Original Various](../img/learning/alarm_original_various_1000.png)
+![500 Data Original Various](../img/learning/alarm_original_various_500.png)
 
 ~~Observations from this scenario~~
 
@@ -118,9 +118,13 @@ As also in the previous section, the following are the plots for hyper-parmeters
 
 ### Missing Observations
 
-- Randomly select samples to be removed as nodes are created
+To complete this task, I replaced each sample of the previous data set with NaN with probability 1/4. While reading the data in, NaN samples are made as unkown nodes. With 100 data points and 1000 samples the alarm hyper-parameters and other hyper-paramters used in previous sections have the following plots.
 
-### Added Data Inference
+![Missing Observations Alarm](../img/learning/alarm_missing_alarm.png)
+
+![Missing Observations Various](../img/learning/alarm_missing_various.png)
+
+~~Observations from this scenario~~
 
 ### My Parameter Learning
 
@@ -133,6 +137,33 @@ I adjusted the probabilities on the Burglary and Alarm nodes as folloes
 	P(Alarm=True|Burglary=False,Earthquake=True) = 0.02
 	P(Alarm=True|Burglary=False,Earthquake=False) = 0.01
 
-To remove some of the data, I replaced each sample with NaN with probability of 1/4.
+To remove some of the data, I replaced each sample with NaN with probability of 1/4. Runing my code the following plots for the alarm hyper-paramters and various other hyper-paramters are produced.
+
+![My Paramters Alarm](../img/learning/alarm_newmeyer_alarm.png)
+
+![My Parameters Various](../img/learning/alarm_newmeyer_various.png)
+
+The estimated parameter values (mean of the samples produced) are as follows
+
+	P(Earthquake=True) ~= 0.5
+
+	P(Alarm=True|Burglary=True,Earthquake=True) ~= 0.99
+	P(Alarm=True|Burglary=True,Earthquake=False) ~= 0.98
+	P(Alarm=True|Burglary=False,Earthquake=True) ~= 0.02
+	P(Alarm=True|Burglary=False,Earthquake=False) ~= 0.01
 
 ### Craig Bidstrup's Parameter Learning
+
+Not knowning Craig's parameters for eqarthquake the following histograms are achieved (same hyper-parameters as in other scenarios) using my code.
+
+![Craig's Parameters Alarm](../img/learning/alarm_bidstrup_alarm.png)
+
+![Craig's Parameters Various](../img/learning/alarm_bidstrup_various.png)
+
+	P(Earthquake=True) ~= 0.5
+
+	P(Alarm=True|Burglary=True,Earthquake=True) ~= 0.99
+	P(Alarm=True|Burglary=True,Earthquake=False) ~= 0.98
+	P(Alarm=True|Burglary=False,Earthquake=True) ~= 0.02
+	P(Alarm=True|Burglary=False,Earthquake=False) ~= 0.01
+
